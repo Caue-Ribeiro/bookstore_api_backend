@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:alpine
+    container_name: my_postgres_db
+    ports:
+      - "5433:5432"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PWD}
+      - POSTGRES_DB=${POSTGRES_NAME}
+      - POSTGRES_USER=${POSTGRES_USER}
+    volumes:
+      - ./database_postgres:/var/lib/postgresql/
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bookstore_network
+
+
+  my-api:
+    build: .
+    ports:
+      - "8080:8080"
+    container_name: my-api-container
+    environment:
+      - DB_URL=${POSTGRES_URL}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PWD}
+    networks:
+      - bookstore_network
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  database_postgres:
+
+networks:
+  bookstore_network:
+
+
