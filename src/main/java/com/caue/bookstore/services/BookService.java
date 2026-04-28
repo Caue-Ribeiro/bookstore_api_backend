@@ -33,7 +33,7 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public BookResponseDTO getBookById(UUID id){
+    public BookResponseDTO getBookById(UUID id) {
 
         List<BookProjection> entity = repository.findBookById(id);
 
@@ -41,7 +41,7 @@ public class BookService {
     }
 
     @Transactional
-    public BookResponseDTO insertNewBook(BookRequestDTO dto){
+    public BookResponseDTO insertNewBook(BookRequestDTO dto) {
 
         Book entity = new Book();
 
@@ -52,20 +52,15 @@ public class BookService {
         entity.setPrice(dto.getPrice());
         entity.setDescription(dto.getDescription());
 
-        for (CategoryDTO cat: dto.getCategories()){
-            Category category = new Category();
-            category.setId(cat.getId());
-            entity.getCategories().add(category);
-        }
+        List<Category> categories = categoryRepository.findAllById(dto.getCategoriesIds());
 
-        for (AuthorDTO aut: dto.getAuthors()){
-          Author author = new Author();
-          author.setId(aut.getId());
-          entity.getAuthors().add(author);
-        }
+        List<Author> authors = authorRepository.findAllById(dto.getAuthorsIds());
 
-       entity = repository.saveAndFlush(entity);
+        entity.getCategories().addAll(categories);
+        entity.getAuthors().addAll(authors);
 
-       return new BookResponseDTO(entity);
+        entity = repository.saveAndFlush(entity);
+
+        return new BookResponseDTO(entity);
     }
 }

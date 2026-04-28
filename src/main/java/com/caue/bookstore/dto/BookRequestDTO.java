@@ -5,7 +5,9 @@ import com.caue.bookstore.entities.Book;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class BookRequestDTO {
@@ -22,9 +24,9 @@ public class BookRequestDTO {
 
     private String description;
 
-    private  List<CategoryDTO> categories = new ArrayList<>();
+    private Set<Long> categoriesIds = new HashSet<>();
 
-    private  List<AuthorDTO> authors = new ArrayList<>();
+    private  Set<Long> authorsIds = new HashSet<>();
 
     public BookRequestDTO() {
     }
@@ -37,9 +39,9 @@ public class BookRequestDTO {
         price = entity.getPrice();
         description = entity.getDescription();
 
-        entity.getAuthors().forEach(author -> authors.add(new AuthorDTO(author)));
+        entity.getAuthors().forEach(author -> authorsIds.add(author.getId()));
 
-        entity.getCategories().forEach(category -> categories.add(new CategoryDTO(category)));
+        entity.getCategories().forEach(category -> categoriesIds.add(category.getId()));
     }
 
     public String getTitle() {
@@ -90,19 +92,19 @@ public class BookRequestDTO {
         this.description = description;
     }
 
-    public List<CategoryDTO> getCategories() {
-        return categories;
+    public Set<Long> getCategoriesIds() {
+        return categoriesIds;
     }
 
-    public List<AuthorDTO> getAuthors() {
-        return authors;
+    public void setCategoriesIds(Set<Long> categoriesIds) {
+        this.categoriesIds = categoriesIds;
     }
 
-    public void setCategories(List<CategoryDTO> categories) {
-        this.categories = categories;
+    public Set<Long> getAuthorsIds() {
+        return authorsIds;
     }
 
-    public void setAuthors(List<AuthorDTO> authors) {
-        this.authors = authors;
+    public void setAuthorsIds(Set<Long> authorsIds) {
+        this.authorsIds = authorsIds;
     }
 }

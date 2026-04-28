@@ -23,9 +23,9 @@ public class BookResponseDTO {
 
     private String description;
 
-    private final Map<Long, AuthorDTO> authors = new HashMap<>();
+    private List<AuthorDTO> authors = new ArrayList<>();
 
-    private final List<CategoryDTO> categories = new ArrayList<>();
+    private List<CategoryDTO> categories = new ArrayList<>();
 
     public BookResponseDTO() {
     }
@@ -41,9 +41,7 @@ public class BookResponseDTO {
 
 
         for (BookProjection bk : entity) {
-            // 1. Check if category is not null (handles LEFT JOIN nulls)
             if (bk.getCategoryId() != null) {
-                // 2. Prevent duplicates caused by multiple SQL rows
                 boolean categoryExists = categories.stream()
                         .anyMatch(c -> c.getId().equals(bk.getCategoryId()));
 
@@ -53,14 +51,16 @@ public class BookResponseDTO {
             }
         }
 
+        Map<Long, AuthorDTO> authorDTOMap = new HashMap<>();
         for (BookProjection bk : entity) {
-            // 1. Check if author is not null BEFORE putting it in the map!
             if (bk.getAuthorId() != null) {
-                if (!authors.containsKey(bk.getAuthorId())) {
-                    authors.put(bk.getAuthorId(), new AuthorDTO(bk.getAuthorId(), bk.getAuthorName(), bk.getAuthorLastName()));
+                if (!authorDTOMap.containsKey(bk.getAuthorId())) {
+                    authorDTOMap.put(bk.getAuthorId(), new AuthorDTO(bk.getAuthorId(), bk.getAuthorName(),
+                        bk.getAuthorLastName()));
                 }
             }
         }
+        authors = new ArrayList<>(authorDTOMap.values());
 
 
     }
@@ -76,7 +76,7 @@ public class BookResponseDTO {
 
         entity.getCategories().forEach(category -> categories.add(new CategoryDTO(category)));
 
-        entity.getAuthors().forEach(author -> authors.put(author.getId(), new AuthorDTO(author)));
+        entity.getAuthors().forEach(author -> authors.add(new AuthorDTO(author)));
     }
 
     public UUID getId() {
@@ -135,7 +135,7 @@ public class BookResponseDTO {
         this.description = description;
     }
 
-    public Map<Long, AuthorDTO> getAuthors() {
+    public List<AuthorDTO> getAuthors() {
         return authors;
     }
 
