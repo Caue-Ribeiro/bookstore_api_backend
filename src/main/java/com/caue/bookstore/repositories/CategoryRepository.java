@@ -1,0 +1,7 @@
+package com.caue.bookstore.repositories;
+
+import com.caue.bookstore.entities.Category;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CategoryRepository extends JpaRepository<Category,Long> {
+}
