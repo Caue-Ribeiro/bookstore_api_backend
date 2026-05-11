@@ -31,6 +31,8 @@ services:
       - DB_URL=${POSTGRES_URL}
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PWD}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
     networks:
       - bookstore_network
     volumes:
