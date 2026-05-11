@@ -22,6 +22,8 @@ public class BookRequestDTO {
 
     private BigDecimal price;
 
+    private String coverImageUrl;
+
     private String description;
 
     private Set<Long> categoriesIds = new HashSet<>();
@@ -106,5 +108,13 @@ public class BookRequestDTO {
 
     public void setAuthorsIds(Set<Long> authorsIds) {
         this.authorsIds = authorsIds;
+    }
+
+    public String getCoverImageUrl() {
+        return coverImageUrl;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
     }
 }

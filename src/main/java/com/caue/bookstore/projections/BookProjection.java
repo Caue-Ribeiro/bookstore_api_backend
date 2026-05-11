@@ -20,5 +20,6 @@ public interface BookProjection {
     Long getAuthorId();
     String getAuthorName();
     String getAuthorLastName();
+    String getCoverImageUrl();
 
 }

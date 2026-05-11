@@ -28,6 +28,8 @@ public class Book {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    private String coverImageUrl;
+
     @OneToMany(mappedBy = "book")
     private List<Rate> rates = new ArrayList<>();
 
@@ -100,48 +102,37 @@ public class Book {
         this.description = description;
     }
 
-    public void addAuthor(Author author) {
-        if (author == null) {
-            return;
-        }
-        authors.add(author);
-        author.getBooks().add(this);
-    }
-
-    public void removeAuthor(Author author) {
-        if (author == null) {
-            return;
-        }
-        authors.remove(author);
-        author.getBooks().remove(this);
-    }
-
-    public void addCategory(Category category) {
-        if (category == null) {
-            return;
-        }
-        categories.add(category);
-        category.getBooks().add(this);
-    }
-
-    public void removeCategory(Category category) {
-        if (category == null) {
-            return;
-        }
-        categories.remove(category);
-        category.getBooks().remove(this);
-    }
-
-
     public List<Rate> getRates() {
         return rates;
+    }
+
+    public void setRates(List<Rate> rates) {
+        this.rates = rates;
+    }
+
+    public Set<Author> getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(Set<Author> authors) {
+        this.authors = authors;
     }
 
     public Set<Category> getCategories() {
         return categories;
     }
 
-    public Set<Author> getAuthors() {
-        return authors;
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
+    }
+
+    public String getCoverImageUrl() {
+        return coverImageUrl;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+
+
     }
 }

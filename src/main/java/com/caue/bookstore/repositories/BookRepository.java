@@ -19,6 +19,7 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
                 	bk.stock,
                 	bk.price,
                 	bk.description,
+                    bk.cover_image_url,
                 	bc.type,
                     bc.id AS category_id,
                 	bat.name AS author_name,

@@ -23,6 +23,8 @@ public class BookResponseDTO {
 
     private String description;
 
+    private String coverImageUrl;
+
     private List<AuthorDTO> authors = new ArrayList<>();
 
     private List<CategoryDTO> categories = new ArrayList<>();
@@ -38,6 +40,7 @@ public class BookResponseDTO {
         stock = entity.getFirst().getStock();
         price = entity.getFirst().getPrice();
         description = entity.getFirst().getDescription();
+        coverImageUrl = entity.getFirst().getCoverImageUrl();
 
 
         for (BookProjection bk : entity) {
@@ -141,5 +144,13 @@ public class BookResponseDTO {
 
     public List<CategoryDTO> getCategories() {
         return categories;
+    }
+
+    public String getCoverImageUrl() {
+        return coverImageUrl;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
     }
 }
