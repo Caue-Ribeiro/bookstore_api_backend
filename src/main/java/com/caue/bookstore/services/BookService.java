@@ -1,20 +1,22 @@
 package com.caue.bookstore.services;
 
-import com.caue.bookstore.dto.AuthorDTO;
+import com.caue.bookstore.AIService.AssistantService;
 import com.caue.bookstore.dto.BookRequestDTO;
 import com.caue.bookstore.dto.BookResponseDTO;
-import com.caue.bookstore.dto.CategoryDTO;
 import com.caue.bookstore.entities.Author;
 import com.caue.bookstore.entities.Book;
 import com.caue.bookstore.entities.Category;
-import com.caue.bookstore.exceptions.ResourceNotFoundException;
 import com.caue.bookstore.projections.BookProjection;
 import com.caue.bookstore.repositories.AuthorRepository;
 import com.caue.bookstore.repositories.BookRepository;
 import com.caue.bookstore.repositories.CategoryRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,12 +26,13 @@ public class BookService {
     private final BookRepository repository;
     private final CategoryRepository categoryRepository;
     private final AuthorRepository authorRepository;
+    private final AssistantService assistantService;
 
-
-    public BookService(BookRepository repository, CategoryRepository categoryRepository, AuthorRepository authorRepository) {
+    public BookService(BookRepository repository, CategoryRepository categoryRepository, AuthorRepository authorRepository, AssistantService assistantService) {
         this.repository = repository;
         this.categoryRepository = categoryRepository;
         this.authorRepository = authorRepository;
+        this.assistantService = assistantService;
     }
 
     @Transactional(readOnly = true)
@@ -40,17 +43,27 @@ public class BookService {
         return new BookResponseDTO(entity);
     }
 
+    @Transactional(readOnly = true)
+    public Page<BookResponseDTO> getAllBooks(@RequestParam Pageable pageable) {
+
+        return repository.findAll(pageable).map(BookResponseDTO::new);
+    }
+
     @Transactional
     public BookResponseDTO insertNewBook(BookRequestDTO dto) {
 
         Book entity = new Book();
 
+        BookRequestDTO bookRequestDTO = assistantService.extractBookData(dto.getTitle());
+
         entity.setTitle(dto.getTitle());
-        entity.setIsbn(dto.getIsbn());
-        entity.setReleaseDate(dto.getReleaseDate());
+        entity.setIsbn(bookRequestDTO.getIsbn());
+        entity.setReleaseDate(bookRequestDTO.getReleaseDate());
         entity.setStock(dto.getStock());
         entity.setPrice(dto.getPrice());
-        entity.setDescription(dto.getDescription());
+        entity.setCoverImageUrl(dto.getCoverImageUrl());
+
+        entity.setDescription(bookRequestDTO.getDescription());
 
         List<Category> categories = categoryRepository.findAllById(dto.getCategoriesIds());
 
@@ -62,5 +75,10 @@ public class BookService {
         entity = repository.saveAndFlush(entity);
 
         return new BookResponseDTO(entity);
+    }
+
+    public void deleteBookById(UUID id) {
+
+        repository.deleteById(id);
     }
 }
