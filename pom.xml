@@ -74,6 +74,12 @@
             <version>1.13.0-beta23</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>3.2.4</version>
+        </dependency>
 	</dependencies>
 
 	<build>
