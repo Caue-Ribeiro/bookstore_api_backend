@@ -17,7 +17,7 @@ public class BookRequestDTO extends BookDTO {
 
     public BookRequestDTO(Book entity) {
 
-        super(entity.getTitle(), entity.getIsbn(), entity.getReleaseDate(), entity.getStock(), entity.getPrice(), entity.getDescription(), entity.getCoverImageUrl());
+        super(entity);
 
         entity.getAuthors().forEach(author -> authorsIds.add(author.getId()));
 

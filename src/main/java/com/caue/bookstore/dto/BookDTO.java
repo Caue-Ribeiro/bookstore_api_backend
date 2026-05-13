@@ -1,7 +1,11 @@
 package com.caue.bookstore.dto;
 
+import com.caue.bookstore.entities.Book;
+import com.caue.bookstore.projections.BookProjection;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public class BookDTO {
@@ -25,27 +29,28 @@ public class BookDTO {
     public BookDTO() {
     }
 
-    public BookDTO(UUID id, String title, String isbn, LocalDate releaseDate, Integer stock, BigDecimal price, String description, String coverImageUrl) {
-        this.id = id;
-        this.title = title;
-        this.isbn = isbn;
-        this.releaseDate = releaseDate;
-        this.stock = stock;
-        this.price = price;
-        this.description = description;
-        this.coverImageUrl = coverImageUrl;
+    public BookDTO(Book entity) {
+        this.id = entity.getId();
+        this.title = entity.getTitle();
+        this.isbn = entity.getIsbn();
+        this.releaseDate = entity.getReleaseDate();
+        this.stock = entity.getStock();
+        this.price = entity.getPrice();
+        this.description = entity.getDescription();
+        this.coverImageUrl = entity.getCoverImageUrl();
     }
 
-
-    public BookDTO(String title, String isbn, LocalDate releaseDate, Integer stock, BigDecimal price, String description, String coverImageUrl) {
-        this.title = title;
-        this.isbn = isbn;
-        this.releaseDate = releaseDate;
-        this.stock = stock;
-        this.price = price;
-        this.description = description;
-        this.coverImageUrl = coverImageUrl;
+    public BookDTO(List<BookProjection> entity) {
+        this.id = entity.getFirst().getBookId();
+        this.title = entity.getFirst().getTitle();
+        this.isbn = entity.getFirst().getIsbn();
+        this.releaseDate = entity.getFirst().getReleaseDate();
+        this.stock = entity.getFirst().getStock();
+        this.price = entity.getFirst().getPrice();
+        this.description = entity.getFirst().getDescription();
+        this.coverImageUrl = entity.getFirst().getCoverImageUrl();
     }
+
 
     public UUID getId() {
         return id;
