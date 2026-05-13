@@ -11,6 +11,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -51,8 +52,18 @@ public class BookController {
         return ResponseEntity.created(uri).body(book);
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<BookResponseDTO> editBook(@PathVariable UUID id, @RequestBody Map<String, Object> update) {
+        String key = update.keySet().iterator().next();
+        Object value = update.values().iterator().next();
+
+        BookResponseDTO book = service.updateBook(id, key, value);
+
+        return ResponseEntity.ok(book);
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBook(@PathVariable UUID id){
+    public ResponseEntity<Void> deleteBook(@PathVariable UUID id) {
 
         service.deleteBookById(id);
 

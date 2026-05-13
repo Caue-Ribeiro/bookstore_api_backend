@@ -153,4 +153,12 @@ public class BookResponseDTO {
     public void setCoverImageUrl(String coverImageUrl) {
         this.coverImageUrl = coverImageUrl;
     }
+
+    public void setAuthors(List<AuthorDTO> authors) {
+        this.authors = authors;
+    }
+
+    public void setCategories(List<CategoryDTO> categories) {
+        this.categories = categories;
+    }
 }
