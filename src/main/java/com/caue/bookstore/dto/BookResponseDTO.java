@@ -7,23 +7,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
-public class BookResponseDTO {
+public class BookResponseDTO extends BookDTO {
 
-    private UUID id;
-
-    private String title;
-
-    private String isbn;
-
-    private LocalDate releaseDate;
-
-    private Integer stock;
-
-    private BigDecimal price;
-
-    private String description;
-
-    private String coverImageUrl;
 
     private List<AuthorDTO> authors = new ArrayList<>();
 
@@ -32,21 +17,18 @@ public class BookResponseDTO {
     public BookResponseDTO() {
     }
 
+    public BookResponseDTO(UUID id, String title, String isbn, LocalDate releaseDate, Integer stock, BigDecimal price, String description, String coverImageUrl) {
+        super(id, title, isbn, releaseDate, stock, price, description, coverImageUrl);
+    }
+
     public BookResponseDTO(List<BookProjection> entity) {
-        id = entity.getFirst().getBookId();
-        title = entity.getFirst().getTitle();
-        isbn = entity.getFirst().getIsbn();
-        releaseDate = entity.getFirst().getReleaseDate();
-        stock = entity.getFirst().getStock();
-        price = entity.getFirst().getPrice();
-        description = entity.getFirst().getDescription();
-        coverImageUrl = entity.getFirst().getCoverImageUrl();
+
+        super(entity.getFirst().getBookId(), entity.getFirst().getTitle(), entity.getFirst().getIsbn(), entity.getFirst().getReleaseDate(), entity.getFirst().getStock(), entity.getFirst().getPrice(), entity.getFirst().getDescription(), entity.getFirst().getCoverImageUrl());
 
 
         for (BookProjection bk : entity) {
             if (bk.getCategoryId() != null) {
-                boolean categoryExists = categories.stream()
-                        .anyMatch(c -> c.getId().equals(bk.getCategoryId()));
+                boolean categoryExists = categories.stream().anyMatch(c -> c.getId().equals(bk.getCategoryId()));
 
                 if (!categoryExists) {
                     categories.add(new CategoryDTO(bk.getCategoryId(), bk.getType()));
@@ -58,8 +40,7 @@ public class BookResponseDTO {
         for (BookProjection bk : entity) {
             if (bk.getAuthorId() != null) {
                 if (!authorDTOMap.containsKey(bk.getAuthorId())) {
-                    authorDTOMap.put(bk.getAuthorId(), new AuthorDTO(bk.getAuthorId(), bk.getAuthorName(),
-                        bk.getAuthorLastName()));
+                    authorDTOMap.put(bk.getAuthorId(), new AuthorDTO(bk.getAuthorId(), bk.getAuthorName(), bk.getAuthorLastName()));
                 }
             }
         }
@@ -69,93 +50,24 @@ public class BookResponseDTO {
     }
 
     public BookResponseDTO(Book entity) {
-        id = entity.getId();
-        title = entity.getTitle();
-        isbn = entity.getIsbn();
-        releaseDate = entity.getReleaseDate();
-        stock = entity.getStock();
-        price = entity.getPrice();
-        description = entity.getDescription();
 
+        super(entity.getId(), entity.getTitle(), entity.getIsbn(), entity.getReleaseDate(), entity.getStock(), entity.getPrice(), entity.getDescription(), entity.getCoverImageUrl());
         entity.getCategories().forEach(category -> categories.add(new CategoryDTO(category)));
 
         entity.getAuthors().forEach(author -> authors.add(new AuthorDTO(author)));
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getIsbn() {
-        return isbn;
-    }
-
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
-    }
-
-    public LocalDate getReleaseDate() {
-        return releaseDate;
-    }
-
-    public void setReleaseDate(LocalDate releaseDate) {
-        this.releaseDate = releaseDate;
-    }
-
-    public Integer getStock() {
-        return stock;
-    }
-
-    public void setStock(Integer stock) {
-        this.stock = stock;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public List<AuthorDTO> getAuthors() {
         return authors;
     }
 
-    public List<CategoryDTO> getCategories() {
-        return categories;
-    }
-
-    public String getCoverImageUrl() {
-        return coverImageUrl;
-    }
-
-    public void setCoverImageUrl(String coverImageUrl) {
-        this.coverImageUrl = coverImageUrl;
-    }
-
     public void setAuthors(List<AuthorDTO> authors) {
         this.authors = authors;
+    }
+
+    public List<CategoryDTO> getCategories() {
+        return categories;
     }
 
     public void setCategories(List<CategoryDTO> categories) {
