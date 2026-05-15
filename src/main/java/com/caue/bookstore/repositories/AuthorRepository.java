@@ -1,8 +1,9 @@
 package com.caue.bookstore.repositories;
 
 import com.caue.bookstore.entities.Author;
-import com.caue.bookstore.projections.AuthorProjection;
+import com.caue.bookstore.projections.BookProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -14,8 +15,8 @@ public interface AuthorRepository extends JpaRepository<Author,Long> {
 
     SELECT
     	aut.id AS author_id,\s
-    	aut.name,
-    	aut.last_name,
+    	aut.name AS author_name,
+    	aut.last_name AS author_last_name,
     	bk.id AS book_id,
     	bk.title,
      	bk.isbn,
@@ -33,5 +34,19 @@ public interface AuthorRepository extends JpaRepository<Author,Long> {
     WHERE
     	aut.id = :id
 """)
-    List<AuthorProjection>findAuthorById(Long id);
+    List<BookProjection>findAuthorById(Long id);
+
+    @Override
+    @Modifying
+    @Query(nativeQuery = true, value = """
+
+WITH deleted_books AS (
+DELETE FROM bs_book_author\s
+WHERE author_id = :authorId
+)
+DELETE FROM bs_author
+WHERE id = :id
+
+""")
+    void deleteById(Long id);
 }

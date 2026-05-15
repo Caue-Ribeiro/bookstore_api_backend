@@ -1,6 +1,7 @@
 package com.caue.bookstore.dto;
 
-import com.caue.bookstore.projections.AuthorProjection;
+
+import com.caue.bookstore.projections.BookProjection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +10,9 @@ public class AuthorResponseDTO extends  AuthorDTO{
 
     private List<BookDTO> books = new ArrayList<>();
 
-    public AuthorResponseDTO(List<AuthorProjection> entity) {
+    public AuthorResponseDTO(List<BookProjection> entity) {
 
-        super(entity.getFirst().getAuthorId(),entity.getFirst().getName(),entity.getFirst().getLastName());
+        super(entity.getFirst().getAuthorId(),entity.getFirst().getAuthorName(),entity.getFirst().getAuthorLastName());
 
         entity.forEach(authorProjection -> {
             BookDTO book = new BookDTO();
