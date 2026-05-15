@@ -84,21 +84,51 @@ public class BookService {
 
 
     @Transactional
-    public BookResponseDTO updateBook(UUID id, String key, Object value) {
+    public BookResponseDTO updateBook(UUID id, Set<String> key, Map<String, Object> value) {
 
         Book book = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Book not found"));
 
-        Field field = ReflectionUtils.findField(Book.class, key);
-        try {
-            if (field != null) {
-                field.setAccessible(true);
-                Object convertedField = modelMapper.map(value, field.getType());
-                ReflectionUtils.setField(field, book, convertedField);
-            }
-            return modelMapper.map(book, BookResponseDTO.class);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+        if (key.contains("authors")) {
+
+            @SuppressWarnings("unchecked") List<Long> authorsIds = (List<Long>) value.get("authors");
+
+            Set<Author> authors = new HashSet<>(authorRepository.findAllById(authorsIds));
+
+            book.setAuthors(authors);
+
+            value.remove("authors");
         }
+        if (key.contains("categories")) {
+
+            @SuppressWarnings("unchecked") List<Long> categoriesIds = (List<Long>) value.get("categories");
+
+            Set<Category> categories = new HashSet<>(categoryRepository.findAllById(categoriesIds));
+
+            book.setCategories(categories);
+
+            value.remove("categories");
+        }
+
+        if (!value.isEmpty()) {
+            Set<Map.Entry<String, Object>> attributes = value.entrySet();
+            while (attributes.iterator().hasNext()) {
+                System.out.println(attributes.iterator().next().getKey());
+                String attributeKey = attributes.iterator().next().getKey();
+                Field field = ReflectionUtils.findField(Book.class, attributeKey);
+                try {
+                    if (field != null) {
+                        field.setAccessible(true);
+                        Object convertedField = modelMapper.map(value.get(attributeKey), field.getType());
+                        ReflectionUtils.setField(field, book, convertedField);
+                    }
+
+                } catch (Exception e) {
+                    throw new RuntimeException(e.getMessage());
+                }
+                value.remove(attributeKey);
+            }
+        }
+        return modelMapper.map(book, BookResponseDTO.class);
     }
 
 

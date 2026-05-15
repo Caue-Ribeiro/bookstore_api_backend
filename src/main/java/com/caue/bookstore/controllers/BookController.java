@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "api/books")
@@ -54,10 +52,10 @@ public class BookController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<BookResponseDTO> editBook(@PathVariable UUID id, @RequestBody Map<String, Object> update) {
-        String key = update.keySet().iterator().next();
-        Object value = update.values().iterator().next();
+        Set<String> key = update.keySet();
 
-        BookResponseDTO book = service.updateBook(id, key, value);
+
+        BookResponseDTO book = service.updateBook(id, key, update);
 
         return ResponseEntity.ok(book);
     }
