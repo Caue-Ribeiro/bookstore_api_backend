@@ -3,6 +3,7 @@ package com.caue.bookstore.services;
 import com.caue.bookstore.dto.AuthorDTO;
 import com.caue.bookstore.dto.AuthorResponseDTO;
 import com.caue.bookstore.entities.Author;
+import com.caue.bookstore.exceptions.ResourceNotFoundException;
 import com.caue.bookstore.projections.BookProjection;
 import com.caue.bookstore.repositories.AuthorRepository;
 import org.modelmapper.ModelMapper;
@@ -11,12 +12,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class AuthorService {
 
     private final AuthorRepository repository;
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
+
+    private final String EXCEPTION_MESSAGE = "Author not found.";
 
     public AuthorService(AuthorRepository repository, ModelMapper modelMapper) {
         this.repository = repository;
@@ -25,11 +29,14 @@ public class AuthorService {
 
     @Transactional(readOnly = true)
     public AuthorDTO getAuthorById(Long id) {
-        List<BookProjection> author = repository.findAuthorById(id);
+        try {
 
-        return new AuthorResponseDTO(author);
+            List<BookProjection> author = repository.findAuthorById(id);
 
-
+            return new AuthorResponseDTO(author);
+        } catch (NoSuchElementException e) {
+            throw new ResourceNotFoundException(EXCEPTION_MESSAGE);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -45,7 +52,6 @@ public class AuthorService {
     }
 
 
-
     @Transactional
     public AuthorDTO insertNewAuthor(AuthorDTO dto) {
 
@@ -59,7 +65,10 @@ public class AuthorService {
 
 
     @Transactional
-    public void deleteAuthorById(Long id){
+    public void deleteAuthorById(Long id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException(EXCEPTION_MESSAGE);
+        }
         repository.deleteById(id);
 
     }

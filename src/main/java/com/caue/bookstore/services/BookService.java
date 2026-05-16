@@ -31,6 +31,8 @@ public class BookService {
     private final AssistantService assistantService;
     private final ModelMapper modelMapper;
 
+    private final String EXCEPTION_MESSAGE = "Book not found.";
+
     public BookService(BookRepository repository, CategoryRepository categoryRepository, AuthorRepository authorRepository, AssistantService assistantService, ModelMapper modelMapper) {
         this.repository = repository;
         this.categoryRepository = categoryRepository;
@@ -42,10 +44,13 @@ public class BookService {
     @Transactional(readOnly = true)
     public BookResponseDTO getBookById(UUID id) {
 
+        try {
+            List<BookProjection> entity = repository.findBookById(id);
 
-        List<BookProjection> entity = repository.findBookById(id);
-
-        return new BookResponseDTO(entity);
+            return new BookResponseDTO(entity);
+        } catch (NoSuchElementException e) {
+            throw new ResourceNotFoundException("Book not found.");
+        }
     }
 
     @Transactional(readOnly = true)
@@ -86,7 +91,7 @@ public class BookService {
     @Transactional
     public BookResponseDTO updateBook(UUID id, Set<String> key, Map<String, Object> value) {
 
-        Book book = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Book not found"));
+        Book book = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(EXCEPTION_MESSAGE));
 
         if (key.contains("authors")) {
 
@@ -133,6 +138,10 @@ public class BookService {
 
 
     public void deleteBookById(UUID id) {
+
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException(EXCEPTION_MESSAGE);
+        }
 
         repository.deleteById(id);
     }
