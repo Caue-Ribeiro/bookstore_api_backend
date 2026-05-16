@@ -1,5 +1,7 @@
 package com.caue.bookstore.enums;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public enum CategoryType {
     FANTASY,
     ROMANCE,
@@ -19,5 +21,10 @@ public enum CategoryType {
     TECHNOLOGY,
     PSYCHOLOGY,
     ECONOMICS,
-    SCIENCE
+    SCIENCE,
+    @JsonProperty("RELIGION AND SPIRITUALITY")
+    RELIGION_AND_SPIRITUALITY,
+    @JsonProperty("SELF-HELP")
+    SELF_HELP,
+    THRILLER
 }
