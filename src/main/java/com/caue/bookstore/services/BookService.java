@@ -11,6 +11,7 @@ import com.caue.bookstore.projections.BookProjection;
 import com.caue.bookstore.repositories.AuthorRepository;
 import com.caue.bookstore.repositories.BookRepository;
 import com.caue.bookstore.repositories.CategoryRepository;
+import org.jspecify.annotations.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,12 +50,12 @@ public class BookService {
 
             return new BookResponseDTO(entity);
         } catch (NoSuchElementException e) {
-            throw new ResourceNotFoundException("Book not found.");
+            throw new ResourceNotFoundException(EXCEPTION_MESSAGE);
         }
     }
 
     @Transactional(readOnly = true)
-    public Page<BookResponseDTO> getAllBooks(@RequestParam Pageable pageable) {
+    public Page<@NonNull BookResponseDTO> getAllBooks(@RequestParam Pageable pageable) {
 
         return repository.findAll(pageable).map(BookResponseDTO::new);
     }
