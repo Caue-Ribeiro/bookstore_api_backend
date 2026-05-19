@@ -10,7 +10,7 @@ public interface BookProjection {
 
     UUID getBookId();
     String getTitle();
-    String getIsbn();
+    Long getIsbn();
     LocalDate getReleaseDate();
     Integer getStock();
     BigDecimal getPrice();
