@@ -3,6 +3,7 @@ package com.caue.bookstore.controllers;
 import com.caue.bookstore.dto.BookRequestDTO;
 import com.caue.bookstore.dto.BookResponseDTO;
 import com.caue.bookstore.services.BookService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +42,7 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<BookResponseDTO> insert(@RequestBody BookRequestDTO dto) {
+    public ResponseEntity<BookResponseDTO> insert(@Valid @RequestBody BookRequestDTO dto) {
 
         BookResponseDTO book = service.insertNewBook(dto);
 
@@ -51,7 +52,7 @@ public class BookController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<BookResponseDTO> editBook(@PathVariable UUID id, @RequestBody Map<String, Object> update) {
+    public ResponseEntity<BookResponseDTO> editBook(@PathVariable UUID id,@Valid @RequestBody Map<String, Object> update) {
         Set<String> key = update.keySet();
 
 

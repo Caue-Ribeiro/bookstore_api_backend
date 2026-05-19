@@ -2,6 +2,7 @@ package com.caue.bookstore.controllers;
 
 import com.caue.bookstore.dto.AuthorDTO;
 import com.caue.bookstore.services.AuthorService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -36,7 +37,7 @@ public class AuthorController {
     }
 
     @PostMapping
-    public ResponseEntity<AuthorDTO> insert(@RequestBody AuthorDTO dto) {
+    public ResponseEntity<AuthorDTO> insert(@Valid @RequestBody AuthorDTO dto) {
 
         dto = service.insertNewAuthor(dto);
 

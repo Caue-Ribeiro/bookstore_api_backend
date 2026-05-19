@@ -2,6 +2,8 @@ package com.caue.bookstore.dto;
 
 import com.caue.bookstore.entities.Book;
 import com.caue.bookstore.projections.BookProjection;
+import jakarta.validation.constraints.*;
+import org.hibernate.validator.constraints.Range;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,16 +14,23 @@ public class BookDTO {
 
     private UUID id;
 
+    @Size(min = 1, max = 100, message = "Book title must be between 1 to 200 characters.")
+    @NotBlank(message = "Book title must not be blank.")
     private String title;
 
-    private String isbn;
+    @Digits(integer = 13, fraction = 0, message = "ISBN must have 13 digits.")
+    private Long isbn;
 
     private LocalDate releaseDate;
 
+    @PositiveOrZero(message = "Stock must be ZERO or POSITIVE.")
     private Integer stock;
 
+    @PositiveOrZero(message = "Price must be ZERO or POSITIVE.")
     private BigDecimal price;
 
+    @NotBlank(message = "Description must not be blank.")
+    @Size(min = 1, max = 500, message = "Description must have at least a character.")
     private String description;
 
     private String coverImageUrl;
@@ -68,11 +77,11 @@ public class BookDTO {
         this.title = title;
     }
 
-    public String getIsbn() {
+    public Long getIsbn() {
         return isbn;
     }
 
-    public void setIsbn(String isbn) {
+    public void setIsbn(Long isbn) {
         this.isbn = isbn;
     }
 

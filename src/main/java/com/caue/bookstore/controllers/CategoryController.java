@@ -2,6 +2,7 @@ package com.caue.bookstore.controllers;
 
 import com.caue.bookstore.dto.CategoryDTO;
 import com.caue.bookstore.services.CategoryService;
+import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<@NonNull List<CategoryDTO>> insertNewCategory(@RequestBody List<CategoryDTO> dto) {
+    public ResponseEntity<@NonNull List<CategoryDTO>> insertNewCategory(@Valid @RequestBody List<CategoryDTO> dto) {
 
         dto = service.insert(dto);
 

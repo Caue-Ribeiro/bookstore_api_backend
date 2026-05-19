@@ -2,11 +2,13 @@ package com.caue.bookstore.dto;
 
 import com.caue.bookstore.entities.Category;
 import com.caue.bookstore.enums.CategoryType;
+import jakarta.validation.constraints.NotBlank;
 
 public class CategoryDTO {
 
     private Long id;
 
+    @NotBlank(message = "Type must not be blank.")
     private CategoryType type;
 
 

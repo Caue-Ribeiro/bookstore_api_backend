@@ -1,13 +1,19 @@
 package com.caue.bookstore.dto;
 
 import com.caue.bookstore.entities.Author;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 
 public class AuthorDTO {
     private Long id;
 
+    @Size(min = 2, max = 100, message = "Name must be between 2 to 100 characters.")
+    @NotBlank(message = "Name must not be blank.")
     private String name;
 
+    @Size(min = 2, max = 100, message = "Last name must be between 2 to 100 characters.")
+    @NotBlank(message = "Last name must not be blank.")
     private String lastName;
 
     public AuthorDTO() {
