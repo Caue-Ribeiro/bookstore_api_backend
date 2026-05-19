@@ -17,7 +17,7 @@ public class Book {
     private String title;
 
     @Column(unique = true)
-    private String isbn;
+    private Long isbn;
 
     private LocalDate releaseDate;
 
@@ -62,11 +62,11 @@ public class Book {
         this.title = title;
     }
 
-    public String getIsbn() {
+    public Long getIsbn() {
         return isbn;
     }
 
-    public void setIsbn(String isbn) {
+    public void setIsbn(Long isbn) {
         this.isbn = isbn;
     }
 
