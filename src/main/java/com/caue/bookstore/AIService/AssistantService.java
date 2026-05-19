@@ -15,6 +15,7 @@ public interface AssistantService {
             1. IGNORE 'stock', 'price' and 'coverImageUrl': You must absolutely NOT generate, invent, or include values for the 'stock', 'price' or 'coverImageUrl' attributes. Leave them null or omitted entirely.,
             2. DATE FORMAT: The 'releaseDate' must be formatted strictly as an ISO-8601 date string (YYYY-MM-DD).,
             3. IDENTIFIERS: Since you do not know this system's internal database IDs, leave the 'categoriesIds' and 'authorsIds' arrays empty.,
+            4. ISBN: The 'isbn' must have 13 digits and the datatype returned must Long.
             4. COMPLETENESS: Do your best to provide accurate data for the 'isbn', 'description'.
             """
 
