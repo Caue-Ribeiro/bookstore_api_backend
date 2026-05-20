@@ -34,6 +34,7 @@ public class CategoryService {
 
             dto.getCategoryList().forEach(categoryDTO -> entity.add(new Category(null, categoryDTO.getType())));
 
+            dto.getCategoryList().clear();
             repository.saveAll(entity).forEach(category -> dto.getCategoryList().add(new CategoryDTO(category)));
 
 
