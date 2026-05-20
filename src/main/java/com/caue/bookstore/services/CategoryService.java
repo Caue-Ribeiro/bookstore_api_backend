@@ -1,10 +1,12 @@
 package com.caue.bookstore.services;
 
 import com.caue.bookstore.dto.CategoryDTO;
+import com.caue.bookstore.dto.CategoryRequestDTO;
 import com.caue.bookstore.entities.Category;
 import com.caue.bookstore.repositories.CategoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,12 +29,14 @@ public class CategoryService {
     }
 
     @Transactional
-    public List<CategoryDTO> insert(List<CategoryDTO> dto) {
-        List<Category> categoryList = new ArrayList<>();
-        dto.forEach(categoryDTO -> categoryList.add(new Category(null, categoryDTO.getType())));
+    public CategoryRequestDTO insert(CategoryRequestDTO dto) {
+            List<Category> entity = new ArrayList<>();
 
-        dto.clear();
-        repository.saveAll(categoryList).forEach(category -> dto.add(new CategoryDTO(category)));
+            dto.getCategoryList().forEach(categoryDTO -> entity.add(new Category(null, categoryDTO.getType())));
+
+            repository.saveAll(entity).forEach(category -> dto.getCategoryList().add(new CategoryDTO(category)));
+
+
 
         return dto;
     }
