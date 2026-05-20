@@ -1,6 +1,7 @@
 package com.caue.bookstore.controllers.exceptionHandler;
 
 
+import com.caue.bookstore.exceptions.DatabaseException;
 import com.caue.bookstore.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,17 @@ public class ControllerExceptionHandler {
         List<FieldError> fieldError = e.getBindingResult().getFieldErrors();
 
         fieldError.forEach(fieldError1 -> error.addError(fieldError1.getField(), fieldError1.getDefaultMessage()));
+
+        return ResponseEntity.status(httpStatus).body(error);
+
+    }
+
+    @ExceptionHandler(DatabaseException.class)
+    public ResponseEntity<CustomError> dataIntegrityViolation(DatabaseException e,
+                                                              HttpServletRequest request) {
+        HttpStatus httpStatus = HttpStatus.CONFLICT;
+
+        CustomError error = new CustomError(Instant.now(), httpStatus, e.getMessage(), request.getRequestURI());
 
         return ResponseEntity.status(httpStatus).body(error);
 

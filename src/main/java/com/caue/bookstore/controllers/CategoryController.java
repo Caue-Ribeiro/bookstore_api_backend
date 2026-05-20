@@ -1,6 +1,7 @@
 package com.caue.bookstore.controllers;
 
 import com.caue.bookstore.dto.CategoryDTO;
+import com.caue.bookstore.dto.CategoryRequestDTO;
 import com.caue.bookstore.services.CategoryService;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
@@ -28,10 +29,18 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<@NonNull List<CategoryDTO>> insertNewCategory(@Valid @RequestBody List<CategoryDTO> dto) {
+    public ResponseEntity<@NonNull CategoryRequestDTO> insertNewCategory(@Valid @RequestBody CategoryRequestDTO dto) {
 
         dto = service.insert(dto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCategoryById(@PathVariable Long id){
+
+        service.deleteCategoryById(id);
+
+        return ResponseEntity.noContent().build();
     }
 }
