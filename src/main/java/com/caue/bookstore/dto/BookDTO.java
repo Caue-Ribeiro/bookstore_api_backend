@@ -18,7 +18,6 @@ public class BookDTO {
     @NotBlank(message = "Book title must not be blank.")
     private String title;
 
-    @Digits(integer = 13, fraction = 0, message = "ISBN must have 13 digits.")
     private Long isbn;
 
     private LocalDate releaseDate;
@@ -29,8 +28,7 @@ public class BookDTO {
     @PositiveOrZero(message = "Price must be ZERO or POSITIVE.")
     private BigDecimal price;
 
-    @NotBlank(message = "Description must not be blank.")
-    @Size(min = 1, max = 500, message = "Description must have at least a character.")
+
     private String description;
 
     private String coverImageUrl;
