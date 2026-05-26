@@ -3,13 +3,15 @@ package com.caue.bookstore.entities;
 
 import com.caue.bookstore.enums.UserRole;
 import jakarta.persistence.*;
+import org.jspecify.annotations.Nullable;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "bs_role")
-public class Role {
+public class Role implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,8 +34,8 @@ public class Role {
         this.id = id;
     }
 
-    public UserRole getAuthority() {
-        return authority;
+    public @Nullable String getAuthority() {
+        return authority.toString();
     }
 
     public void setAuthority(UserRole authority) {
