@@ -3,6 +3,7 @@ package com.caue.bookstore.controllers.exceptionHandler;
 
 import com.caue.bookstore.exceptions.DatabaseException;
 import com.caue.bookstore.exceptions.ResourceNotFoundException;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +46,17 @@ public class ControllerExceptionHandler {
     public ResponseEntity<CustomError> dataIntegrityViolation(DatabaseException e,
                                                               HttpServletRequest request) {
         HttpStatus httpStatus = HttpStatus.CONFLICT;
+
+        CustomError error = new CustomError(Instant.now(), httpStatus, e.getMessage(), request.getRequestURI());
+
+        return ResponseEntity.status(httpStatus).body(error);
+
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<CustomError> expiredJwt(ExpiredJwtException e,
+                                                              HttpServletRequest request) {
+        HttpStatus httpStatus = HttpStatus.FORBIDDEN;
 
         CustomError error = new CustomError(Instant.now(), httpStatus, e.getMessage(), request.getRequestURI());
 

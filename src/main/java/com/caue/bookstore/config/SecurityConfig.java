@@ -1,44 +1,40 @@
 package com.caue.bookstore.config;
 
-import com.caue.bookstore.services.CustomUserService;
+import com.caue.bookstore.filters.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final CustomAuthenticationEntryPoint entryPoint;
+    private final JwtAuthFilter jwtAuthFilter;
 
-    public SecurityConfig(CustomAuthenticationEntryPoint entryPoint) {
-        this.entryPoint = entryPoint;
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+
+        this.jwtAuthFilter = jwtAuthFilter;
+
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/api/users").permitAll().anyRequest().authenticated()).httpBasic(httpSecurityHttpBasicConfigurer -> httpSecurityHttpBasicConfigurer.authenticationEntryPoint(entryPoint));
+        http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests((authorize) -> authorize.requestMatchers(
+                "/authenticate").permitAll().anyRequest().authenticated());
+
+       http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-
 
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
