@@ -17,6 +17,7 @@ public class Role implements GrantedAuthority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     private UserRole authority;
 
 
@@ -24,6 +25,11 @@ public class Role implements GrantedAuthority {
     private Set<User> users = new HashSet<>();
 
     public Role() {
+    }
+
+    public Role(Long id, UserRole authority) {
+        this.id = id;
+        this.authority = authority;
     }
 
     public Long getId() {

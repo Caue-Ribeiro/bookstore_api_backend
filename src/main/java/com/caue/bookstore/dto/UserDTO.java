@@ -1,6 +1,7 @@
 package com.caue.bookstore.dto;
 
 import com.caue.bookstore.entities.User;
+import com.caue.bookstore.enums.UserRole;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,6 +36,8 @@ public class UserDTO {
         email = entity.getEmail();
         birthdate = entity.getBirthdate();
         password = entity.getPassword();
+
+        entity.getRoles().forEach(role -> roles.add(new RoleDTO(role.getId(), UserRole.valueOf(role.getAuthority()))));
 
     }
 

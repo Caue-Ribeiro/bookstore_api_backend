@@ -1,7 +1,7 @@
 package com.caue.bookstore.controllers;
 
 import com.caue.bookstore.dto.UserDTO;
-import com.caue.bookstore.services.CustomUserService;
+import com.caue.bookstore.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "api/users")
 public class UserController {
 
-    private CustomUserService service;
+    private UserService service;
 
-    public UserController(CustomUserService service) {
+    public UserController(UserService service) {
         this.service = service;
     }
 

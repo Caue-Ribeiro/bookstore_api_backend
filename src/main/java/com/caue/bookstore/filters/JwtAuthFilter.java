@@ -1,6 +1,6 @@
 package com.caue.bookstore.filters;
 
-import com.caue.bookstore.services.CustomUserService;
+import com.caue.bookstore.services.UserService;
 import com.caue.bookstore.utils.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -22,10 +22,10 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private JWTUtil jwtUtil;
-    private CustomUserService service;
+    private UserService service;
     private HandlerExceptionResolver handlerExceptionResolver;
 
-    public JwtAuthFilter(JWTUtil jwtUtil, CustomUserService service,
+    public JwtAuthFilter(JWTUtil jwtUtil, UserService service,
                          @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver) {
         this.jwtUtil = jwtUtil;
         this.service = service;
@@ -42,7 +42,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
 
-                token = authHeader.substring(7); // extract token from header
+                token = authHeader.substring(7);
                 username = jwtUtil.extractUsername(token);
             }
 
