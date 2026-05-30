@@ -10,7 +10,7 @@ This API is currently under active development. I am focusing on building out th
 
 [/] Currently Working On: Implementing CRUD endpoints and Error handling
 
-[ ] Implement User Authentication & Authorization (JWT)
+[/] Implement User Authentication & Authorization (JWT)
 
 [ ] Create Shopping Cart and Order processing logic
 
