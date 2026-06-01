@@ -42,7 +42,7 @@ public interface AuthorRepository extends JpaRepository<Author,Long> {
 
 WITH deleted_books AS (
 DELETE FROM bs_book_author\s
-WHERE author_id = :authorId
+WHERE author_id = :id
 )
 DELETE FROM bs_author
 WHERE id = :id
