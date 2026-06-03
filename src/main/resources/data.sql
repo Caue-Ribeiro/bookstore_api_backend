@@ -67,7 +67,5 @@ INSERT INTO bs_book_category(book_id,category_id) VALUES((SELECT id FROM bs_book
 INSERT INTO bs_book_category(book_id,category_id) VALUES((SELECT id FROM bs_book WHERE title = 'Thus Spoke Zarathustra'), 7);
 INSERT INTO bs_book_category(book_id,category_id) VALUES((SELECT id FROM bs_book WHERE title = 'The Hound of the Baskervilles'),10);
 
-INSERT INTO bs_role(authority) VALUES( 'ROLE_ADMIN');
-INSERT INTO bs_role(authority) VALUES( 'ROLE_CLIENT');
 
 COMMIT;
