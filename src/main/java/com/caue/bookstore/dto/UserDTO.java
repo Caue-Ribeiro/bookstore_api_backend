@@ -4,8 +4,6 @@ import com.caue.bookstore.entities.User;
 import com.caue.bookstore.enums.UserRole;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class UserDTO {
@@ -16,20 +14,21 @@ public class UserDTO {
     private LocalDate birthdate;
     private String password;
 
-    private List<RoleDTO> roles = new ArrayList<>();
+    private UserRole role;
 
 
     public UserDTO() {
     }
 
-    public UserDTO(UUID id,String name, String lastName, String email, LocalDate birthdate, String password) {
+    public UserDTO(UUID id, String name, String lastName, String email, LocalDate birthdate, String password,
+                   UserRole role) {
         this.id = id;
         this.name = name;
         this.lastName = lastName;
         this.email = email;
         this.birthdate = birthdate;
         this.password = password;
-
+        this.role = role;
     }
 
     public UserDTO(User entity) {
@@ -38,8 +37,7 @@ public class UserDTO {
         lastName = entity.getLastName();
         email = entity.getEmail();
         birthdate = entity.getBirthdate();
-
-        entity.getRoles().forEach(role -> roles.add(new RoleDTO(role.getId(), UserRole.valueOf(role.getAuthority()))));
+        role = entity.getRole();
 
     }
 
@@ -92,11 +90,11 @@ public class UserDTO {
         this.password = password;
     }
 
-    public List<RoleDTO> getRoles() {
-        return roles;
+    public UserRole getRole() {
+        return role;
     }
 
-    public void setRoles(List<RoleDTO> roles) {
-        this.roles = roles;
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 }

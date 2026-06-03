@@ -24,11 +24,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Modifying
     @Query(nativeQuery = true, value = """
-            
-                WITH deleted_roles AS(
-                    DELETE FROM bs_user_role
-                    WHERE user_id = :id
-                )
                 DELETE FROM bs_user 
                 WHERE id = :id
             """)
@@ -38,7 +33,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("""
            SELECT DISTINCT u
            FROM User u
-           JOIN FETCH u.roles
 """)
     Page<User> findAllUsers(Pageable pageable);
 }

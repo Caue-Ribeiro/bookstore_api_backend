@@ -1,6 +1,6 @@
 package com.caue.bookstore.entities;
 
-
+import com.caue.bookstore.enums.UserRole;
 import jakarta.persistence.*;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.GrantedAuthority;
@@ -30,10 +30,8 @@ public class User implements UserDetails {
 
     private String password;
 
-    @ManyToMany
-    @JoinTable(name = "bs_user_role", joinColumns = @JoinColumn(name = "user_id"),inverseJoinColumns =
-    @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     @OneToMany(mappedBy = "user")
     private List<Order> orders = new ArrayList<>();
@@ -85,8 +83,12 @@ public class User implements UserDetails {
         this.birthdate = birthdate;
     }
 
-    public Set<Role> getRoles() {
-        return roles;
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 
     public List<Order> getOrders() {
@@ -103,7 +105,17 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(roles.stream().toString()));
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+
+        authorities.add(new SimpleGrantedAuthority("ROLE_"+role.name()));
+
+        Set<SimpleGrantedAuthority> permissions = role.getPermissions().stream()
+                .map(permission -> new SimpleGrantedAuthority(permission.name()))
+                .collect(Collectors.toSet());
+
+        authorities.addAll(permissions);
+
+        return authorities;
     }
 
     public String getPassword() {

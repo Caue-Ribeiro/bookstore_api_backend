@@ -1,12 +1,9 @@
 package com.caue.bookstore.services;
 
 import com.caue.bookstore.dto.UserDTO;
-import com.caue.bookstore.entities.Role;
 import com.caue.bookstore.entities.User;
-import com.caue.bookstore.enums.UserRole;
 import com.caue.bookstore.exceptions.DatabaseException;
 import com.caue.bookstore.exceptions.ResourceNotFoundException;
-import com.caue.bookstore.repositories.RoleRepository;
 import com.caue.bookstore.repositories.UserRepository;
 import com.caue.bookstore.utils.UserMapper;
 import org.jetbrains.annotations.NotNull;
@@ -22,8 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import java.util.UUID;
 
@@ -32,15 +27,13 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
     private final UserMapper userMapper;
 
     private final String NOT_FOUND_MSG = "User not found.";
 
-    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, UserMapper userMapper) {
+    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
-        this.roleRepository = roleRepository;
         this.userMapper = userMapper;
     }
 
@@ -83,30 +76,14 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserDTO editUser(UUID id, UserDTO dto) {
-        List<Role> roles = new ArrayList<>();
+
         User userEntity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MSG));
 
-        userEntity.getRoles().forEach(role -> roles.add(new Role(role.getId(), UserRole.valueOf(role.getAuthority()))));
-
-
-        userMapper.updateUserFromDto(dto, userEntity);
-        userEntity.getRoles().addAll(roles);
+        userMapper.updateUserFromDto(dto,userEntity);
 
         userEntity = repository.save(userEntity);
 
         return new UserDTO(userEntity);
-    }
-
-    @Transactional
-    public UserDTO updateUser(UUID id, UserDTO dto) {
-        User userEntity = repository.getReferenceById(id);
-
-        dtoToEntity(dto, userEntity);
-
-        userEntity = repository.save(userEntity);
-
-        return new UserDTO(userEntity);
-
     }
 
 
@@ -125,21 +102,16 @@ public class UserService implements UserDetailsService {
     }
 
     private void dtoToEntity(UserDTO dto, User entity) {
-        List<Role> roles = new ArrayList<>();
         entity.setName(dto.getName());
         entity.setLastName(dto.getLastName());
         entity.setBirthdate(dto.getBirthdate());
         entity.setEmail(dto.getEmail());
+        entity.setRole(dto.getRole());
 
         if (dto.getPassword() != null) {
             entity.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
-        dto.getRoles().forEach(roleDTO -> {
-            Role userRole = roleRepository.findByAuthority(roleDTO.getAuthority());
-            roles.add(userRole);
-        });
 
-        entity.getRoles().addAll(roles);
     }
 
 }
