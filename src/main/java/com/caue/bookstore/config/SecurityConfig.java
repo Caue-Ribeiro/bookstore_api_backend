@@ -1,8 +1,10 @@
 package com.caue.bookstore.config;
 
+import com.caue.bookstore.enums.Permission;
 import com.caue.bookstore.filters.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -29,7 +31,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests((authorize) -> authorize.requestMatchers(
-                "/authenticate").permitAll().anyRequest().authenticated());
+                "/authenticate").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/users/**").hasAuthority(Permission.READ.name())
+                .requestMatchers(HttpMethod.POST,"/api/users/**").hasAuthority(Permission.WRITE.name())
+                .requestMatchers(HttpMethod.PATCH,"/api/users/**").hasAuthority(Permission.WRITE.name())
+                .anyRequest().authenticated());
 
        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
