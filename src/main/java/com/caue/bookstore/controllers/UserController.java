@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -31,18 +32,17 @@ public class UserController {
 
     }
 
-    //todo: test all these new methods
 
-    //TESTED
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDTO> getUserById(@PathVariable UUID id) {
         UserDTO user = service.getUserById(id);
 
         return ResponseEntity.ok(user);
     }
 
-    //TESTED
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserDTO>> getAllUsers(Pageable pageable) {
         Page<UserDTO> user = service.getAllUsers(pageable);
 
@@ -51,8 +51,8 @@ public class UserController {
 
 
 
-    //TESTED
     @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENT')")
     public ResponseEntity<UserDTO> editUser(@PathVariable UUID id, @RequestBody UserDTO dto) {
 
         UserDTO user = service.editUser(id, dto);
@@ -61,9 +61,10 @@ public class UserController {
     }
 
 
-    //TESTED
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable UUID id) {
+    @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#id)")
+    public ResponseEntity<Void> deleteById(@PathVariable("id") UUID id) {
         service.deleteUser(id);
         return ResponseEntity.noContent().build();
     }

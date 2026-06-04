@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -42,6 +43,7 @@ public class BookController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookResponseDTO> insert(@Valid @RequestBody BookRequestDTO dto) {
 
         BookResponseDTO book = service.insertNewBook(dto);
@@ -52,6 +54,7 @@ public class BookController {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookResponseDTO> editBook(@PathVariable UUID id,@Valid @RequestBody Map<String, Object> update) {
         Set<String> key = update.keySet();
 
@@ -62,6 +65,7 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteBook(@PathVariable UUID id) {
 
         service.deleteBookById(id);

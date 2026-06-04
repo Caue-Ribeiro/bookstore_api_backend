@@ -4,6 +4,7 @@ import com.caue.bookstore.dto.AuthorDTO;
 import com.caue.bookstore.services.AuthorService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -37,6 +38,7 @@ public class AuthorController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AuthorDTO> insert(@Valid @RequestBody AuthorDTO dto) {
 
         dto = service.insertNewAuthor(dto);
@@ -48,6 +50,7 @@ public class AuthorController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteAuthorById(@PathVariable Long id) {
         service.deleteAuthorById(id);
 

@@ -125,7 +125,7 @@ public class User implements UserDetails {
     @NotNull
     @Override
     public String getUsername() {
-        return name;
+        return email;
     }
 
     @Override
