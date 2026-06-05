@@ -2,6 +2,7 @@ package com.caue.bookstore.controllers;
 
 import com.caue.bookstore.dto.UserDTO;
 import com.caue.bookstore.services.UserService;
+import okhttp3.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,14 +23,23 @@ public class UserController {
         this.service = service;
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<UserDTO> insertNewUser(@RequestBody UserDTO dto) {
+
 
         dto = service.insert(dto);
 
 
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
 
+    }
+
+    @PostMapping("/register/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity insertNewAdminOrUser(@RequestBody UserDTO dto) {
+        dto = service.insert(dto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
 
@@ -50,7 +60,6 @@ public class UserController {
     }
 
 
-
     @PatchMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','CLIENT')")
     public ResponseEntity<UserDTO> editUser(@PathVariable UUID id, @RequestBody UserDTO dto) {
@@ -59,7 +68,6 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
-
 
 
     @DeleteMapping("/{id}")

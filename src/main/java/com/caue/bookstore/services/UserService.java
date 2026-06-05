@@ -2,6 +2,7 @@ package com.caue.bookstore.services;
 
 import com.caue.bookstore.dto.UserDTO;
 import com.caue.bookstore.entities.User;
+import com.caue.bookstore.enums.UserRole;
 import com.caue.bookstore.exceptions.DatabaseException;
 import com.caue.bookstore.exceptions.ResourceNotFoundException;
 import com.caue.bookstore.repositories.UserRepository;
@@ -64,9 +65,7 @@ public class UserService implements UserDetailsService {
 
         User entity = new User();
 
-
         dtoToEntity(dto, entity);
-
 
         entity = repository.save(entity);
 
@@ -79,7 +78,7 @@ public class UserService implements UserDetailsService {
 
         User userEntity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MSG));
 
-        userMapper.updateUserFromDto(dto,userEntity);
+        userMapper.updateUserFromDto(dto, userEntity);
 
         userEntity = repository.save(userEntity);
 
@@ -91,6 +90,9 @@ public class UserService implements UserDetailsService {
     public void deleteUser(UUID id) {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException(NOT_FOUND_MSG);
+        } else if (repository.getReferenceById(id).getEmail().equals("caue@email.com")) {
+            throw new DatabaseException("Main administrator can not be deleted");
+
         }
         try {
 
@@ -102,11 +104,17 @@ public class UserService implements UserDetailsService {
     }
 
     private void dtoToEntity(UserDTO dto, User entity) {
+
         entity.setName(dto.getName());
         entity.setLastName(dto.getLastName());
         entity.setBirthdate(dto.getBirthdate());
         entity.setEmail(dto.getEmail());
-        entity.setRole(dto.getRole());
+
+        if (dto.getRole() != null) {
+            entity.setRole(dto.getRole());
+        } else {
+            entity.setRole(UserRole.CLIENT);
+        }
 
         if (dto.getPassword() != null) {
             entity.setPassword(passwordEncoder.encode(dto.getPassword()));
