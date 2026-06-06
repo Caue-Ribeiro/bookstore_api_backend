@@ -27,6 +27,7 @@ public class OrderItem {
         id.setOrder(order);
         this.quantity = quantity;
         this.price = price;
+        setTotal();
     }
 
     public Integer getQuantity() {

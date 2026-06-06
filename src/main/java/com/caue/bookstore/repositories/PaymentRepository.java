@@ -1,0 +1,10 @@
+package com.caue.bookstore.repositories;
+
+import com.caue.bookstore.entities.Payment;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.UUID;
+
+public interface PaymentRepository extends JpaRepository<Payment, UUID> {
+}
+

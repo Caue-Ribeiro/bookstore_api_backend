@@ -2,6 +2,8 @@ package com.caue.bookstore.controllers.exceptionHandler;
 
 
 import com.caue.bookstore.exceptions.DatabaseException;
+import com.caue.bookstore.exceptions.InsufficientStockException;
+import com.caue.bookstore.exceptions.InvalidOrderStateException;
 import com.caue.bookstore.exceptions.ResourceNotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +53,15 @@ public class ControllerExceptionHandler {
 
         return ResponseEntity.status(httpStatus).body(error);
 
+    }
+
+    @ExceptionHandler({InsufficientStockException.class, InvalidOrderStateException.class})
+    public ResponseEntity<CustomError> orderBusinessRule(RuntimeException e, HttpServletRequest request) {
+        HttpStatus httpStatus = HttpStatus.CONFLICT;
+
+        CustomError error = new CustomError(Instant.now(), httpStatus, e.getMessage(), request.getRequestURI());
+
+        return ResponseEntity.status(httpStatus).body(error);
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
