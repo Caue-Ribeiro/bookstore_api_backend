@@ -63,4 +63,3 @@ public class OrderItemDTO {
         this.availableStock = availableStock;
     }
 }
-

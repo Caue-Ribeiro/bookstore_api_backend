@@ -1,10 +1,7 @@
 package com.caue.bookstore.controllers.exceptionHandler;
 
 
-import com.caue.bookstore.exceptions.DatabaseException;
-import com.caue.bookstore.exceptions.InsufficientStockException;
-import com.caue.bookstore.exceptions.InvalidOrderStateException;
-import com.caue.bookstore.exceptions.ResourceNotFoundException;
+import com.caue.bookstore.exceptions.*;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -73,5 +70,32 @@ public class ControllerExceptionHandler {
 
         return ResponseEntity.status(httpStatus).body(error);
 
+    }
+
+    @ExceptionHandler(WeakPasswordException.class)
+    public ResponseEntity<CustomError> weakPassword(WeakPasswordException e, HttpServletRequest request) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        CustomError error = new CustomError(Instant.now(), httpStatus, e.getMessage(), request.getRequestURI());
+
+        return ResponseEntity.status(httpStatus).body(error);
+    }
+
+    @ExceptionHandler(UserLockedException.class)
+    public ResponseEntity<CustomError> userLocked(UserLockedException e, HttpServletRequest request) {
+        HttpStatus httpStatus = HttpStatus.LOCKED;
+
+        CustomError error = new CustomError(Instant.now(), httpStatus, e.getMessage(), request.getRequestURI());
+
+        return ResponseEntity.status(httpStatus).body(error);
+    }
+
+    @ExceptionHandler(InvalidResetTokenException.class)
+    public ResponseEntity<CustomError> invalidResetToken(InvalidResetTokenException e, HttpServletRequest request) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        CustomError error = new CustomError(Instant.now(), httpStatus, e.getMessage(), request.getRequestURI());
+
+        return ResponseEntity.status(httpStatus).body(error);
     }
 }

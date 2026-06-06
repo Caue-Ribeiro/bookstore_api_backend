@@ -1,6 +1,8 @@
 package com.caue.bookstore.controllers;
 
+import com.caue.bookstore.dto.AuditLogDTO;
 import com.caue.bookstore.dto.UserDTO;
+import com.caue.bookstore.services.AuditLogService;
 import com.caue.bookstore.services.UserService;
 import okhttp3.Response;
 import org.springframework.data.domain.Page;
@@ -8,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -18,9 +22,11 @@ import java.util.UUID;
 public class UserController {
 
     private UserService service;
+    private AuditLogService auditLogService;
 
-    public UserController(UserService service) {
+    public UserController(UserService service, AuditLogService auditLogService) {
         this.service = service;
+        this.auditLogService = auditLogService;
     }
 
     @PostMapping("/register")
@@ -75,5 +81,34 @@ public class UserController {
     public ResponseEntity<Void> deleteById(@PathVariable("id") UUID id) {
         service.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Get audit logs for the current authenticated user
+     */
+    @GetMapping("/{id}/audit-logs")
+    @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#id)")
+    public ResponseEntity<Page<AuditLogDTO>> getUserAuditLogs(
+            @PathVariable UUID id,
+            Pageable pageable) {
+        com.caue.bookstore.entities.User user = new com.caue.bookstore.entities.User();
+        user.setId(id);
+        Page<AuditLogDTO> logs = auditLogService.getUserAuditLogs(user, pageable);
+        return ResponseEntity.ok(logs);
+    }
+
+    /**
+     * Get audit logs by action for the current authenticated user
+     */
+    @GetMapping("/{id}/audit-logs/{action}")
+    @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#id)")
+    public ResponseEntity<Page<AuditLogDTO>> getUserAuditLogsByAction(
+            @PathVariable UUID id,
+            @PathVariable String action,
+            Pageable pageable) {
+        com.caue.bookstore.entities.User user = new com.caue.bookstore.entities.User();
+        user.setId(id);
+        Page<AuditLogDTO> logs = auditLogService.getUserAuditLogsByAction(user, action, pageable);
+        return ResponseEntity.ok(logs);
     }
 }

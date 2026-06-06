@@ -39,6 +39,27 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Rate> rates = new ArrayList<>();
 
+    @Column(name = "failed_login_attempts", nullable = false)
+    private Integer failedLoginAttempts = 0;
+
+    @Column(name = "is_locked", nullable = false)
+    private Boolean isLocked = false;
+
+    @Column(name = "lock_expiration_time")
+    private Long lockExpirationTime;
+
+    @Column(name = "last_login")
+    private Long lastLogin;
+
+    @Column(name = "password_reset_token", unique = true)
+    private String passwordResetToken;
+
+    @Column(name = "reset_token_expiration")
+    private Long resetTokenExpiration;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AuditLog> auditLogs = new ArrayList<>();
+
     public User() {
     }
 
@@ -135,7 +156,16 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        if (isLocked) {
+            // Check if lock has expired
+            if (lockExpirationTime != null && System.currentTimeMillis() > lockExpirationTime) {
+                isLocked = false;
+                lockExpirationTime = null;
+                return true;
+            }
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -146,5 +176,61 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
+    }
+
+    public Integer getFailedLoginAttempts() {
+        return failedLoginAttempts;
+    }
+
+    public void setFailedLoginAttempts(Integer failedLoginAttempts) {
+        this.failedLoginAttempts = failedLoginAttempts;
+    }
+
+    public Boolean getIsLocked() {
+        return isLocked;
+    }
+
+    public void setIsLocked(Boolean locked) {
+        isLocked = locked;
+    }
+
+    public Long getLockExpirationTime() {
+        return lockExpirationTime;
+    }
+
+    public void setLockExpirationTime(Long lockExpirationTime) {
+        this.lockExpirationTime = lockExpirationTime;
+    }
+
+    public Long getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(Long lastLogin) {
+        this.lastLogin = lastLogin;
+    }
+
+    public String getPasswordResetToken() {
+        return passwordResetToken;
+    }
+
+    public void setPasswordResetToken(String passwordResetToken) {
+        this.passwordResetToken = passwordResetToken;
+    }
+
+    public Long getResetTokenExpiration() {
+        return resetTokenExpiration;
+    }
+
+    public void setResetTokenExpiration(Long resetTokenExpiration) {
+        this.resetTokenExpiration = resetTokenExpiration;
+    }
+
+    public List<AuditLog> getAuditLogs() {
+        return auditLogs;
+    }
+
+    public void setAuditLogs(List<AuditLog> auditLogs) {
+        this.auditLogs = auditLogs;
     }
 }

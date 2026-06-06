@@ -36,4 +36,3 @@ public class PaymentDTO {
         this.orderId = orderId;
     }
 }
-

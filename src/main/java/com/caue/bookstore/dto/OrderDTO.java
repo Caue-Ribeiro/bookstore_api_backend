@@ -77,4 +77,3 @@ public class OrderDTO {
         this.payment = payment;
     }
 }
-

@@ -2,6 +2,7 @@ package com.caue.bookstore.filters;
 
 import com.caue.bookstore.services.UserService;
 import com.caue.bookstore.utils.JWTUtil;
+import com.caue.bookstore.utils.TokenBlacklist;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,12 +25,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private JWTUtil jwtUtil;
     private UserService service;
     private HandlerExceptionResolver handlerExceptionResolver;
+    private TokenBlacklist tokenBlacklist;
 
     public JwtAuthFilter(JWTUtil jwtUtil, UserService service,
-                         @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver) {
+                         @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
+                         TokenBlacklist tokenBlacklist) {
         this.jwtUtil = jwtUtil;
         this.service = service;
         this.handlerExceptionResolver = handlerExceptionResolver;
+        this.tokenBlacklist = tokenBlacklist;
     }
 
     @Override
@@ -43,6 +47,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 
                 token = authHeader.substring(7);
+
+                // Check if token is blacklisted
+                if (tokenBlacklist.isBlacklisted(token)) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
                 username = jwtUtil.extractUsername(token);
             }
 
