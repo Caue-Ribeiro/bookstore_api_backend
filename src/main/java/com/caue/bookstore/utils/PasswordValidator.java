@@ -43,4 +43,3 @@ public class PasswordValidator {
         return expirationTime == null || System.currentTimeMillis() > expirationTime;
     }
 }
-

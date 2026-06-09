@@ -4,6 +4,9 @@ import com.caue.bookstore.dto.PasswordResetConfirm;
 import com.caue.bookstore.dto.PasswordResetRequest;
 import com.caue.bookstore.entities.AuthRequest;
 import com.caue.bookstore.entities.User;
+import com.caue.bookstore.exceptions.UserLockedException;
+import com.caue.bookstore.services.AuditLogService;
+import com.caue.bookstore.services.UserLockValidator;
 import com.caue.bookstore.services.UserService;
 import com.caue.bookstore.utils.JWTUtil;
 import com.caue.bookstore.utils.TokenBlacklist;
@@ -26,46 +29,64 @@ public class AuthController {
     private final JWTUtil jwtUtil;
     private final UserService userService;
     private final TokenBlacklist tokenBlacklist;
+    private final AuditLogService auditLogService;
+    private final UserLockValidator lockValidator;
 
-    public AuthController(AuthenticationManager authenticationManager, JWTUtil jwtUtil, UserService userService, TokenBlacklist tokenBlacklist) {
+    public AuthController(AuthenticationManager authenticationManager, JWTUtil jwtUtil, UserService userService, 
+                          TokenBlacklist tokenBlacklist, AuditLogService auditLogService, UserLockValidator lockValidator) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userService = userService;
         this.tokenBlacklist = tokenBlacklist;
+        this.auditLogService = auditLogService;
+        this.lockValidator = lockValidator;
     }
 
     @PostMapping("/authenticate")
     public ResponseEntity<Map<String, String>> generateToken(@RequestBody AuthRequest authRequest) {
+            Map<String, String> response = new HashMap<>();
         try {
+            // Load user and check lock status BEFORE authentication
+            User user = (User) userService.loadUserByUsername(authRequest.getUsername());
+            lockValidator.validateAndUnlockIfExpired(user);
+
+            // Proceed with authentication
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
             );
 
-            User user = (User) authentication.getPrincipal();
+            user = (User) authentication.getPrincipal();
             userService.handleSuccessfulLogin(user);
 
             String token = jwtUtil.generateToken(authRequest.getUsername());
-            Map<String, String> response = new HashMap<>();
             response.put("token", token);
             response.put("message", "Login successful");
 
             return ResponseEntity.ok(response);
 
+        } catch (UserLockedException ule) {
+            // User is locked - re-throw this specific exception to be handled by ControllerExceptionHandler
+            throw ule;
         } catch (Exception e) {
-            // Handle failed login attempt
+            // Handle failed login attempt for other exceptions
             try {
                 User user = (User) userService.loadUserByUsername(authRequest.getUsername());
-                userService.handleFailedLoginAttempt(user);
+                response = userService.handleFailedLoginAttempt(user);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            } catch (UserLockedException ule) {
+                // If user gets locked during failed attempt handling, re-throw it
+                throw ule;
             } catch (Exception ignored) {
+                // Ignore other exceptions and proceed with throwing original exception
             }
             throw e;
         }
     }
 
     /**
-     * Logout endpoint - adds token to blacklist
+     * Logout endpoint - adds token to blacklist and logs the action
      */
-    @PostMapping("/logout")
+    @PostMapping("/log-out")
     public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -76,7 +97,7 @@ public class AuthController {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof User) {
                 User user = (User) authentication.getPrincipal();
-                // We can log this via AuditLogService if needed
+                auditLogService.logAction(user, "LOGOUT", "User logged out successfully");
             }
 
             SecurityContextHolder.clearContext();

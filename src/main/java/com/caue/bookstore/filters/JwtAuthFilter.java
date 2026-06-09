@@ -27,6 +27,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private HandlerExceptionResolver handlerExceptionResolver;
     private TokenBlacklist tokenBlacklist;
 
+    // List of paths that should skip JWT validation
+    private static final String[] PUBLIC_PATHS = {
+            "/authenticate",
+            "/log-out",
+            "/forgot-password",
+            "/reset-password",
+            "/api/users/register"
+    };
+
     public JwtAuthFilter(JWTUtil jwtUtil, UserService service,
                          @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
                          TokenBlacklist tokenBlacklist) {
@@ -39,12 +48,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        // Skip JWT filter for public paths
+        String requestPath = request.getServletPath();
+        if (isPublicPath(requestPath)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             String authHeader = request.getHeader("Authorization");
             String token = null;
             String username = null;
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
-
 
                 token = authHeader.substring(7);
 
@@ -75,5 +90,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
 
+    }
+
+    /**
+     * Check if the request path is a public path that doesn't require JWT validation
+     */
+    private boolean isPublicPath(String path) {
+        for (String publicPath : PUBLIC_PATHS) {
+            if (path.startsWith(publicPath)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

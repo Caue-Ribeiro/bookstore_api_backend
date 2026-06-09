@@ -5,4 +5,3 @@ public class InvalidResetTokenException extends RuntimeException {
         super(message);
     }
 }
-

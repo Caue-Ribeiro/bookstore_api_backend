@@ -21,9 +21,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -81,6 +84,8 @@ public class UserService implements UserDetailsService {
     /**
      * Handle successful login - reset failed attempts and update last login
      */
+
+    //Tested
     @Transactional
     public void handleSuccessfulLogin(User user) {
         user.setFailedLoginAttempts(0);
@@ -95,21 +100,35 @@ public class UserService implements UserDetailsService {
 
     /**
      * Handle failed login attempt - lock user if max attempts exceeded
+     * Uses REQUIRES_NEW to ensure persistence even if parent transaction rolls back
      */
-    @Transactional
-    public void handleFailedLoginAttempt(User user) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Map<String,String> handleFailedLoginAttempt(User user) {
+        Map<String,String> responseMsg = new HashMap<>();
+
         int attempts = (user.getFailedLoginAttempts() != null ? user.getFailedLoginAttempts() : 0) + 1;
         user.setFailedLoginAttempts(attempts);
 
         if (attempts >= MAX_FAILED_ATTEMPTS) {
             user.setIsLocked(true);
             user.setLockExpirationTime(System.currentTimeMillis() + LOCK_DURATION_MS);
+            repository.saveAndFlush(user);
             auditLogService.logAction(user, "LOGIN_FAILED", "Account locked after " + MAX_FAILED_ATTEMPTS + " failed attempts");
-            throw new UserLockedException("Account locked for " + (LOCK_DURATION_MS / 1000 / 60) + " minutes due to too many failed login attempts.");
+            //throw new UserLockedException("Account locked for " + (LOCK_DURATION_MS / 1000 / 60) + " minutes due to
+            // too many failed login attempts.");
+            responseMsg.put("status", "Account locked for "+ (LOCK_DURATION_MS / 1000/ 60 + " minutes due to " +
+                    "too many" +
+                    " failed login attempts"));
+
+            return responseMsg;
+
         }
 
-        repository.save(user);
+        repository.saveAndFlush(user);
         auditLogService.logAction(user, "LOGIN_FAILED", "Failed login attempt (" + attempts + "/" + MAX_FAILED_ATTEMPTS + ")");
+        responseMsg.put("message", "Failed login attempt (" +attempts+"/" + MAX_FAILED_ATTEMPTS+")");
+
+        return responseMsg;
     }
 
     /**
@@ -211,6 +230,5 @@ public class UserService implements UserDetailsService {
         entity.setFailedLoginAttempts(0);
         entity.setIsLocked(false);
     }
-
 }
 

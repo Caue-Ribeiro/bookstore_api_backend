@@ -5,4 +5,3 @@ public class WeakPasswordException extends RuntimeException {
         super(message);
     }
 }
-

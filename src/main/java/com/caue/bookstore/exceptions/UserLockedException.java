@@ -5,4 +5,3 @@ public class UserLockedException extends RuntimeException {
         super(message);
     }
 }
-

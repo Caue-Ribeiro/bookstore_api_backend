@@ -3,6 +3,7 @@ package com.caue.bookstore.repositories;
 
 import com.caue.bookstore.dto.UserDTO;
 import com.caue.bookstore.entities.User;
+import com.caue.bookstore.enums.UserRole;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,4 +40,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
     Optional<User> findByPasswordResetToken(String token);
+
+    @Query(nativeQuery = true, value = """
+    SELECT * 
+    FROM bs_user
+    WHERE email = :username AND role = :role
+""")
+    User findUserByAuthorities(String username, String role);
 }
