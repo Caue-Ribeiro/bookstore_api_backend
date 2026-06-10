@@ -157,7 +157,7 @@ public class User implements UserDetails {
     @Override
     public boolean isAccountNonLocked() {
         if (isLocked) {
-            // Check if lock has expired
+            
             if (lockExpirationTime != null && System.currentTimeMillis() > lockExpirationTime) {
                 isLocked = false;
                 lockExpirationTime = null;

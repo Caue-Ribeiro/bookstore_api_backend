@@ -6,7 +6,6 @@ import com.caue.bookstore.enums.UserRole;
 import com.caue.bookstore.exceptions.DatabaseException;
 import com.caue.bookstore.exceptions.InvalidResetTokenException;
 import com.caue.bookstore.exceptions.ResourceNotFoundException;
-import com.caue.bookstore.exceptions.UserLockedException;
 import com.caue.bookstore.repositories.UserRepository;
 import com.caue.bookstore.utils.PasswordValidator;
 import com.caue.bookstore.utils.UserMapper;
@@ -38,8 +37,8 @@ public class UserService implements UserDetailsService {
     private final AuditLogService auditLogService;
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
-    private static final long LOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
-    private static final long RESET_TOKEN_VALIDITY_MS = 60 * 60 * 1000; // 1 hour
+    private static final long LOCK_DURATION_MS = 15 * 60 * 1000; 
+    private static final long RESET_TOKEN_VALIDITY_MS = 60 * 60 * 1000; 
 
     private final String NOT_FOUND_MSG = "User not found.";
 
@@ -69,7 +68,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserDTO insert(UserDTO dto) {
-        // Validate password strength
+        
         if (dto.getPassword() != null) {
             PasswordValidator.validatePasswordStrength(dto.getPassword());
         }
@@ -81,11 +80,9 @@ public class UserService implements UserDetailsService {
         return new UserDTO(entity);
     }
 
-    /**
-     * Handle successful login - reset failed attempts and update last login
-     */
+    
 
-    //Tested
+    
     @Transactional
     public void handleSuccessfulLogin(User user) {
         user.setFailedLoginAttempts(0);
@@ -94,14 +91,11 @@ public class UserService implements UserDetailsService {
         user.setLockExpirationTime(null);
         repository.save(user);
 
-        // Log successful login
+        
         auditLogService.logAction(user, "LOGIN", "Successful login");
     }
 
-    /**
-     * Handle failed login attempt - lock user if max attempts exceeded
-     * Uses REQUIRES_NEW to ensure persistence even if parent transaction rolls back
-     */
+    
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map<String,String> handleFailedLoginAttempt(User user) {
         Map<String,String> responseMsg = new HashMap<>();
@@ -114,8 +108,8 @@ public class UserService implements UserDetailsService {
             user.setLockExpirationTime(System.currentTimeMillis() + LOCK_DURATION_MS);
             repository.saveAndFlush(user);
             auditLogService.logAction(user, "LOGIN_FAILED", "Account locked after " + MAX_FAILED_ATTEMPTS + " failed attempts");
-            //throw new UserLockedException("Account locked for " + (LOCK_DURATION_MS / 1000 / 60) + " minutes due to
-            // too many failed login attempts.");
+            
+            
             responseMsg.put("status", "Account locked for "+ (LOCK_DURATION_MS / 1000/ 60 + " minutes due to " +
                     "too many" +
                     " failed login attempts"));
@@ -131,9 +125,7 @@ public class UserService implements UserDetailsService {
         return responseMsg;
     }
 
-    /**
-     * Initiate password reset by generating a reset token
-     */
+    
     @Transactional
     public void requestPasswordReset(String email) {
         User user = repository.findByEmail(email)
@@ -146,22 +138,20 @@ public class UserService implements UserDetailsService {
 
         auditLogService.logAction(user, "PASSWORD_RESET_REQUESTED", "Password reset token generated");
 
-        // In production, send email with reset link: /reset-password?token=resetToken
+        
         System.out.println("Password reset token for user " + email + ": " + resetToken);
     }
 
-    /**
-     * Reset password using valid reset token
-     */
+    
     @Transactional
     public void resetPasswordWithToken(String token, String newPassword) {
-        // Validate password strength
+        
         PasswordValidator.validatePasswordStrength(newPassword);
 
         User user = repository.findByPasswordResetToken(token)
                 .orElseThrow(() -> new InvalidResetTokenException("Invalid or expired reset token."));
 
-        // Check if token is expired
+        
         if (PasswordValidator.isTokenExpired(user.getResetTokenExpiration())) {
             throw new InvalidResetTokenException("Reset token has expired. Please request a new password reset.");
         }
@@ -181,7 +171,7 @@ public class UserService implements UserDetailsService {
     public UserDTO editUser(UUID id, UserDTO dto) {
         User userEntity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MSG));
 
-        // If password is being changed, validate strength
+        
         if (dto.getPassword() != null) {
             PasswordValidator.validatePasswordStrength(dto.getPassword());
         }
@@ -226,7 +216,7 @@ public class UserService implements UserDetailsService {
             entity.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
 
-        // Initialize security fields
+        
         entity.setFailedLoginAttempts(0);
         entity.setIsLocked(false);
     }

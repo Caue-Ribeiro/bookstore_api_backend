@@ -11,6 +11,7 @@ import com.caue.bookstore.services.UserService;
 import com.caue.bookstore.utils.JWTUtil;
 import com.caue.bookstore.utils.TokenBlacklist;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,14 +44,14 @@ public class AuthController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<Map<String, String>> generateToken(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<Map<String, String>> generateToken(@Valid @RequestBody AuthRequest authRequest) {
             Map<String, String> response = new HashMap<>();
         try {
-            // Load user and check lock status BEFORE authentication
+            
             User user = (User) userService.loadUserByUsername(authRequest.getUsername());
             lockValidator.validateAndUnlockIfExpired(user);
 
-            // Proceed with authentication
+            
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
             );
@@ -65,27 +66,25 @@ public class AuthController {
             return ResponseEntity.ok(response);
 
         } catch (UserLockedException ule) {
-            // User is locked - re-throw this specific exception to be handled by ControllerExceptionHandler
+            
             throw ule;
         } catch (Exception e) {
-            // Handle failed login attempt for other exceptions
+            
             try {
                 User user = (User) userService.loadUserByUsername(authRequest.getUsername());
                 response = userService.handleFailedLoginAttempt(user);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             } catch (UserLockedException ule) {
-                // If user gets locked during failed attempt handling, re-throw it
+                
                 throw ule;
             } catch (Exception ignored) {
-                // Ignore other exceptions and proceed with throwing original exception
+                
             }
             throw e;
         }
     }
 
-    /**
-     * Logout endpoint - adds token to blacklist and logs the action
-     */
+    
     @PostMapping("/log-out")
     public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
@@ -94,7 +93,7 @@ public class AuthController {
             long tokenTtlSeconds = jwtUtil.getRemainingValiditySeconds(token);
             tokenBlacklist.addToBlacklist(token, tokenTtlSeconds);
 
-            // Log the logout action
+            
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof User) {
                 User user = (User) authentication.getPrincipal();
@@ -113,11 +112,9 @@ public class AuthController {
         return ResponseEntity.badRequest().body(response);
     }
 
-    /**
-     * Request password reset - generates reset token
-     */
+    
     @PostMapping("/forgot-password")
-    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody PasswordResetRequest request) {
+    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody PasswordResetRequest request) {
         userService.requestPasswordReset(request.getEmail());
 
         Map<String, String> response = new HashMap<>();
@@ -125,11 +122,9 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Reset password with token
-     */
+    
     @PostMapping("/reset-password")
-    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody PasswordResetConfirm request) {
+    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody PasswordResetConfirm request) {
         userService.resetPasswordWithToken(request.getToken(), request.getNewPassword());
 
         Map<String, String> response = new HashMap<>();

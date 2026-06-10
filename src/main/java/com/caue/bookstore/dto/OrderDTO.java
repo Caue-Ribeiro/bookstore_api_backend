@@ -1,6 +1,9 @@
 package com.caue.bookstore.dto;
 
 import com.caue.bookstore.enums.OrderStatus;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -10,11 +13,16 @@ import java.util.UUID;
 
 public class OrderDTO {
 
+    @NotNull(message = "Order ID must not be null.")
     private UUID id;
     private Instant moment;
+    @NotNull(message = "Order status must not be null.")
     private OrderStatus status;
+    @NotNull(message = "User ID must not be null.")
     private UUID userId;
+    @PositiveOrZero(message = "Order total must be zero or positive.")
     private BigDecimal total;
+    @Valid
     private List<OrderItemDTO> items = new ArrayList<>();
     private PaymentDTO payment;
 

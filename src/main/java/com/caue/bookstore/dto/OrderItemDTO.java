@@ -1,15 +1,24 @@
 package com.caue.bookstore.dto;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
 public class OrderItemDTO {
 
+    @NotNull(message = "Book ID must not be null.")
     private UUID bookId;
     private String title;
+    @Min(value = 1, message = "Quantity must be at least 1.")
     private Integer quantity;
+    @PositiveOrZero(message = "Price must be zero or positive.")
     private BigDecimal price;
+    @PositiveOrZero(message = "Total must be zero or positive.")
     private BigDecimal total;
+    @PositiveOrZero(message = "Available stock must be zero or positive.")
     private Integer availableStock;
 
     public OrderItemDTO() {

@@ -83,9 +83,6 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Get audit logs for the current authenticated user
-     */
     @GetMapping("/{id}/audit-logs")
     @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#id)")
     public ResponseEntity<Page<AuditLogDTO>> getUserAuditLogs(
@@ -97,9 +94,6 @@ public class UserController {
         return ResponseEntity.ok(logs);
     }
 
-    /**
-     * Get audit logs by action for the current authenticated user
-     */
     @GetMapping("/{id}/audit-logs/{action}")
     @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#id)")
     public ResponseEntity<Page<AuditLogDTO>> getUserAuditLogsByAction(

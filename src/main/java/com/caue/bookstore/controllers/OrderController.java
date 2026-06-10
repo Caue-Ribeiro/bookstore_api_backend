@@ -1,18 +1,21 @@
 package com.caue.bookstore.controllers;
 
 import com.caue.bookstore.dto.OrderDTO;
+import com.caue.bookstore.exceptions.DatabaseException;
 import com.caue.bookstore.services.OrderService;
 import jakarta.validation.constraints.Min;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
 @RestController
+@Validated
 @RequestMapping("/api/orders")
 public class OrderController {
 
@@ -28,6 +31,9 @@ public class OrderController {
     public ResponseEntity<@NonNull OrderDTO> addToCart(@PathVariable UUID userId,
                                                        @PathVariable UUID bookId,
                                               @RequestParam @Min(1) Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new DatabaseException("Quantity must be greater than zero.");
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.addToCart(userId, bookId, quantity));
     }
 
@@ -37,6 +43,9 @@ public class OrderController {
     public ResponseEntity<@NonNull OrderDTO> removeFromCart(@PathVariable UUID userId,
                                                             @PathVariable UUID bookId,
                                                    @RequestParam @Min(1) Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new DatabaseException("Quantity must be greater than zero.");
+        }
         return ResponseEntity.ok(orderService.removeFromCart(userId, bookId, quantity));
     }
 
