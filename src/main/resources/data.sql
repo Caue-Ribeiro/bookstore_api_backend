@@ -68,4 +68,20 @@ INSERT INTO bs_book_category(book_id,category_id) VALUES((SELECT id FROM bs_book
 INSERT INTO bs_book_category(book_id,category_id) VALUES((SELECT id FROM bs_book WHERE title = 'The Hound of the Baskervilles'),10);
 
 
+-- Create audit log table
+CREATE TABLE IF NOT EXISTS bs_audit_log (
+                                            id UUID PRIMARY KEY,
+                                            user_id UUID NOT NULL,
+                                            action VARCHAR(50) NOT NULL,
+                                            details TEXT,
+                                            ip_address VARCHAR(45),
+                                            timestamp BIGINT NOT NULL,
+                                            user_agent TEXT,
+                                            CONSTRAINT fk_audit_log_user FOREIGN KEY (user_id) REFERENCES bs_user(id) ON DELETE CASCADE
+);
+
+-- Create index for performance
+CREATE INDEX IF NOT EXISTS idx_audit_log_user_timestamp ON bs_audit_log(user_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_log_user_action ON bs_audit_log(user_id, action);
+
 COMMIT;
