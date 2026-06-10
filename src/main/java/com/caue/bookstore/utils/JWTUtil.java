@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class JWTUtil {
@@ -40,5 +41,17 @@ public class JWTUtil {
 
     public boolean isTokenExpired(String token) {
         return extractClaims(token).getExpiration().before(new Date());
+    }
+
+    public Date extractExpiration(String token) {
+        return extractClaims(token).getExpiration();
+    }
+
+    public long getRemainingValiditySeconds(String token) {
+        long remainingMillis = extractExpiration(token).getTime() - System.currentTimeMillis();
+        if (remainingMillis <= 0) {
+            return 0;
+        }
+        return TimeUnit.MILLISECONDS.toSeconds(remainingMillis);
     }
 }

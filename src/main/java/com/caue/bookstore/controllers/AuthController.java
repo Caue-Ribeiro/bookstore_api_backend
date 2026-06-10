@@ -91,7 +91,8 @@ public class AuthController {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            tokenBlacklist.addToBlacklist(token);
+            long tokenTtlSeconds = jwtUtil.getRemainingValiditySeconds(token);
+            tokenBlacklist.addToBlacklist(token, tokenTtlSeconds);
 
             // Log the logout action
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

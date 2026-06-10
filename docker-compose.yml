@@ -21,6 +21,20 @@ services:
       - bookstore_network
 
 
+  redis:
+    image: redis:7-alpine
+    container_name: bookstore-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bookstore_network
+
+
   my-api:
     build: .
     ports:
@@ -33,12 +47,17 @@ services:
       - DB_PASSWORD=${POSTGRES_PWD}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - TAVILY_API_KEY=${TAVILY_API_KEY}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
     networks:
       - bookstore_network
     volumes:
       - .:/app
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 volumes:
   database_postgres:
