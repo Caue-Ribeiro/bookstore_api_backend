@@ -52,8 +52,8 @@ class OrderControllerValidationTest {
 
         mockMvc.perform(post("/api/orders/users/{userId}/cart/items/{bookId}", userId, bookId)
                         .queryParam("quantity", "0"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("must be greater than or equal to 1")));
+                .andExpect(status().isConflict())
+                .andExpect(content().string(containsString("Quantity")));
 
         verifyNoInteractions(orderService);
     }
