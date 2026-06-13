@@ -67,7 +67,7 @@ class OrderServiceTest {
         cart.setUser(user);
         cart.setStatus(OrderStatus.CART);
         cart.setMoment(Instant.now());
-        cart.addItem(new OrderItem(book, cart, 2, book.getPrice()));
+        cart.addItem(new OrderItem(book, cart, 2, book.getPrice(), book.getCoverImageUrl()));
 
         when(orderRepository.findByUserIdAndStatusForUpdate(userId, OrderStatus.CART)).thenReturn(Optional.of(cart));
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
@@ -120,7 +120,7 @@ class OrderServiceTest {
         order.setId(orderId);
         order.setUser(user);
         order.setStatus(OrderStatus.AWAITING_PAYMENT);
-        order.addItem(new OrderItem(book, order, 3, book.getPrice()));
+        order.addItem(new OrderItem(book, order, 3, book.getPrice(), book.getCoverImageUrl()));
 
         when(orderRepository.findByIdForUpdate(orderId)).thenReturn(Optional.of(order));
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));

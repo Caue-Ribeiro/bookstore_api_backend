@@ -1,6 +1,7 @@
 package com.caue.bookstore.controllers;
 
 import com.caue.bookstore.dto.OrderDTO;
+import com.caue.bookstore.enums.OrderStatus;
 import com.caue.bookstore.exceptions.DatabaseException;
 import com.caue.bookstore.services.OrderService;
 import jakarta.validation.constraints.Min;
@@ -82,6 +83,15 @@ public class OrderController {
     @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#userId)")
     public ResponseEntity<@NonNull List<@NonNull OrderDTO>> getOrdersByUser(@PathVariable UUID userId) {
         return ResponseEntity.ok(orderService.getOrdersByUser(userId));
+    }
+
+    @GetMapping()
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<OrderDTO>> getAllOrders(){
+
+        List<OrderDTO> orders = orderService.getAllOrders();
+
+        return ResponseEntity.ok(orders);
     }
 }
 

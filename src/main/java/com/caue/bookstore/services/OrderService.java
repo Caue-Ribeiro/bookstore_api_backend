@@ -70,7 +70,7 @@ public class OrderService {
                 .orElse(null);
 
         if (item == null) {
-            item = new OrderItem(book, cart, quantity, book.getPrice());
+            item = new OrderItem(book, cart, quantity, book.getPrice(), book.getCoverImageUrl());
             cart.addItem(item);
         } else {
             int updatedQuantity = item.getQuantity() + quantity;
@@ -120,6 +120,7 @@ public class OrderService {
     public OrderDTO getCart(UUID userId) {
         Order cart = orderRepository.findByUser_IdAndStatus(userId, OrderStatus.CART)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found."));
+
         return toDto(cart);
     }
 
@@ -244,6 +245,7 @@ public class OrderService {
             itemDTO.setPrice(item.getPrice());
             itemDTO.setTotal(item.getTotal());
             itemDTO.setAvailableStock(item.getBook().getStock());
+            itemDTO.setCoverImageUrl(item.getCoverImageUrl());
             items.add(itemDTO);
             total = total.add(item.getTotal() == null ? BigDecimal.ZERO : item.getTotal());
         }
@@ -259,6 +261,16 @@ public class OrderService {
         }
 
         return dto;
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderDTO> getAllOrders(){
+       List<Order> entity =  orderRepository.findAll();
+       List<OrderDTO> orderDTOS = new ArrayList<>();
+
+       entity.forEach(order -> orderDTOS.add(toDto(order)));
+
+       return orderDTOS;
     }
 }
 

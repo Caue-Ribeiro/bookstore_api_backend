@@ -19,14 +19,17 @@ public class OrderItem {
 
     private BigDecimal total;
 
+    private String coverImageUrl;
+
     public OrderItem() {
     }
 
-    public OrderItem(Book book, Order order, Integer quantity, BigDecimal price) {
+    public OrderItem(Book book, Order order, Integer quantity, BigDecimal price, String coverImageUrl) {
         id.setBook(book);
         id.setOrder(order);
         this.quantity = quantity;
         this.price = price;
+        this.coverImageUrl = coverImageUrl;
         setTotal();
     }
 
@@ -56,6 +59,14 @@ public class OrderItem {
 
     public BigDecimal getTotal() {
         return total;
+    }
+
+    public String getCoverImageUrl() {
+        return coverImageUrl;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
     }
 
     public void setTotal() {

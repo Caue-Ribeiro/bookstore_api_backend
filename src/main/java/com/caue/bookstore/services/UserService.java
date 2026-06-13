@@ -171,12 +171,14 @@ public class UserService implements UserDetailsService {
     public UserDTO editUser(UUID id, UserDTO dto) {
         User userEntity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MSG));
 
-        
         if (dto.getPassword() != null) {
             PasswordValidator.validatePasswordStrength(dto.getPassword());
+            dto.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
 
         userMapper.updateUserFromDto(dto, userEntity);
+
+
         userEntity = repository.save(userEntity);
 
         auditLogService.logAction(userEntity, "USER_UPDATED", "User profile updated");

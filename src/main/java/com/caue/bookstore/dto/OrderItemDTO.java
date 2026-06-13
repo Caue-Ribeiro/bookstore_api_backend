@@ -21,6 +21,8 @@ public class OrderItemDTO {
     @PositiveOrZero(message = "Available stock must be zero or positive.")
     private Integer availableStock;
 
+    private String coverImageUrl;
+
     public OrderItemDTO() {
     }
 
@@ -70,5 +72,13 @@ public class OrderItemDTO {
 
     public void setAvailableStock(Integer availableStock) {
         this.availableStock = availableStock;
+    }
+
+    public String getCoverImageUrl() {
+        return coverImageUrl;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
     }
 }
