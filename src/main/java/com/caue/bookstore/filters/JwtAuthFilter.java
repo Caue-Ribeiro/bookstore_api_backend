@@ -33,7 +33,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             "/log-out",
             "/forgot-password",
             "/reset-password",
-            "/api/users/register"
+            "/api/users/register",
+            "/api/authors/summary"
     };
 
     public JwtAuthFilter(JWTUtil jwtUtil, UserService service,

@@ -1,6 +1,7 @@
 package com.caue.bookstore.controllers;
 
 import com.caue.bookstore.dto.AuthorDTO;
+import com.caue.bookstore.entities.WikipediaSummary;
 import com.caue.bookstore.services.AuthorService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,15 @@ public class AuthorController {
         List<AuthorDTO> authors = service.getAuthors();
 
         return ResponseEntity.ok(authors);
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<WikipediaSummary> getAuthorSummary(@RequestParam String authorName){
+
+       WikipediaSummary wikipediaSummary= service.getAuthorSummary(authorName);
+
+       return ResponseEntity.ok(wikipediaSummary);
+
     }
 
     @PostMapping

@@ -40,7 +40,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/authenticate", "/forgot-password", "/reset-password", "/log-out").permitAll()
+                .requestMatchers("/authenticate", "/forgot-password", "/reset-password", "/log-out", "/api/authors" +
+                        "/summary").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/authors/**").permitAll()

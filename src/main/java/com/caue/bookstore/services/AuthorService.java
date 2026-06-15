@@ -3,12 +3,15 @@ package com.caue.bookstore.services;
 import com.caue.bookstore.dto.AuthorDTO;
 import com.caue.bookstore.dto.AuthorResponseDTO;
 import com.caue.bookstore.entities.Author;
+import com.caue.bookstore.entities.WikipediaSummary;
 import com.caue.bookstore.exceptions.ResourceNotFoundException;
 import com.caue.bookstore.projections.BookProjection;
 import com.caue.bookstore.repositories.AuthorRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +22,15 @@ public class AuthorService {
 
     private final AuthorRepository repository;
     private final ModelMapper modelMapper;
+    private RestClient restClient;
 
     private final String EXCEPTION_MESSAGE = "Author not found.";
 
-    public AuthorService(AuthorRepository repository, ModelMapper modelMapper) {
+    public AuthorService(AuthorRepository repository, ModelMapper modelMapper, RestClient restClient) {
         this.repository = repository;
         this.modelMapper = modelMapper;
+        this.restClient = restClient;
+
     }
 
     @Transactional(readOnly = true)
@@ -49,6 +55,18 @@ public class AuthorService {
         entityList.forEach(author -> authorsDTO.add(new AuthorDTO(author.getId(), author.getName(), author.getLastName())));
 
         return authorsDTO;
+    }
+
+    public WikipediaSummary getAuthorSummary(String authorName){
+
+        authorName = authorName.replace(" ","_");
+
+        return restClient.get()
+                .uri("/{authorName}",authorName)
+                .header(HttpHeaders.USER_AGENT, "BookStoreApp/1.0 (caueribeiro.dev@gmail.com)")
+                .retrieve()
+                .body(WikipediaSummary.class);
+
     }
 
 
