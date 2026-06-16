@@ -1,6 +1,7 @@
 package com.caue.bookstore.repositories;
 
 import com.caue.bookstore.entities.Book;
+import com.caue.bookstore.entities.BookEvent;
 import com.caue.bookstore.projections.BookProjection;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -42,5 +43,10 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
             
             """)
     List<BookProjection> findBookById(UUID id);
+
+    @Query("""
+                SELECT be FROM BookEvent be
+            """)
+    List<BookEvent> findAllEvents();
 }
 

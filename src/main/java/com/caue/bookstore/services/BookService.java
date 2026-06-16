@@ -3,9 +3,7 @@ package com.caue.bookstore.services;
 import com.caue.bookstore.AIService.AssistantService;
 import com.caue.bookstore.dto.BookRequestDTO;
 import com.caue.bookstore.dto.BookResponseDTO;
-import com.caue.bookstore.entities.Author;
-import com.caue.bookstore.entities.Book;
-import com.caue.bookstore.entities.Category;
+import com.caue.bookstore.entities.*;
 import com.caue.bookstore.exceptions.ResourceNotFoundException;
 import com.caue.bookstore.projections.BookProjection;
 import com.caue.bookstore.repositories.AuthorRepository;
@@ -58,6 +56,12 @@ public class BookService {
     public Page<@NonNull BookResponseDTO> getAllBooks(@RequestParam Pageable pageable) {
 
         return repository.findAll(pageable).map(BookResponseDTO::new);
+    }
+
+    @Transactional(readOnly = true)
+    public List<BookEvent> getBookEvents(){
+        return  repository.findAllEvents();
+
     }
 
     @Transactional
@@ -145,5 +149,14 @@ public class BookService {
         }
 
         repository.deleteById(id);
+    }
+
+    public ReaderProfileResponse readingAIRecommender(String userInput){
+
+       ReaderProfileResponse readerProfileResponse= assistantService.bookAdviser(userInput);
+
+       return readerProfileResponse;
+
+
     }
 }

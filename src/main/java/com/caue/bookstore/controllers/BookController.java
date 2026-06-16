@@ -2,6 +2,8 @@ package com.caue.bookstore.controllers;
 
 import com.caue.bookstore.dto.BookRequestDTO;
 import com.caue.bookstore.dto.BookResponseDTO;
+import com.caue.bookstore.entities.BookEvent;
+import com.caue.bookstore.entities.ReaderProfileResponse;
 import com.caue.bookstore.services.BookService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -42,6 +44,13 @@ public class BookController {
         return ResponseEntity.ok(books);
     }
 
+    @GetMapping(value = "/events")
+    public ResponseEntity<List<BookEvent>> getBookEvents(){
+       List<BookEvent> bookEvents =  service.getBookEvents();
+
+       return ResponseEntity.ok(bookEvents);
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookResponseDTO> insert(@Valid @RequestBody BookRequestDTO dto) {
@@ -51,6 +60,16 @@ public class BookController {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(book.getId()).toUri();
 
         return ResponseEntity.created(uri).body(book);
+    }
+
+    @PostMapping("/reader-discovery")
+    public ResponseEntity<ReaderProfileResponse> readingAIRecommender(@RequestBody Map<String,String> payload){
+
+        String userInput = payload.get("userInput");
+
+       ReaderProfileResponse readerProfileResponse= service.readingAIRecommender(userInput);
+
+       return ResponseEntity.ok(readerProfileResponse);
     }
 
     @PatchMapping("/{id}")

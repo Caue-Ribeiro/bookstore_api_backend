@@ -34,7 +34,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             "/forgot-password",
             "/reset-password",
             "/api/users/register",
-            "/api/authors/summary"
+            "/api/authors/summary",
+            "/api/books/reader-discovery"
     };
 
     public JwtAuthFilter(JWTUtil jwtUtil, UserService service,
