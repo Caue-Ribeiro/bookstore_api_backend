@@ -6,7 +6,7 @@ import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.spring.AiService;
 
-@AiService(tools = "webSearchTool")
+@AiService
 public interface AssistantService {
     @SystemMessage({"""
             You are a specialized librarian AI data extractor.,
