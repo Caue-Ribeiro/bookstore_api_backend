@@ -1,7 +1,6 @@
 package com.caue.bookstore.controllers;
 
 import com.caue.bookstore.dto.OrderDTO;
-import com.caue.bookstore.enums.OrderStatus;
 import com.caue.bookstore.exceptions.DatabaseException;
 import com.caue.bookstore.services.OrderService;
 import jakarta.validation.constraints.Min;
@@ -50,6 +49,22 @@ public class OrderController {
         return ResponseEntity.ok(orderService.removeFromCart(userId, bookId, quantity));
     }
 
+    @DeleteMapping("/users/{userId}/cart/trash-item/{bookId}")
+    @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication, #userId)")
+    public ResponseEntity<OrderDTO> deleteItemFromCartById(@PathVariable UUID userId, @PathVariable UUID bookId){
+               OrderDTO order= orderService.deleteItemFromCartById(userId,bookId);
+
+               return ResponseEntity.ok(order);
+    }
+
+    @DeleteMapping("/users/clear-cart/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication, #userId)")
+    public ResponseEntity<Void> clearCart(@PathVariable UUID userId){
+
+        orderService.clearCart(userId);
+
+        return ResponseEntity.noContent().build();
+    }
     
     @GetMapping("/users/{userId}/cart")
     @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#userId)")

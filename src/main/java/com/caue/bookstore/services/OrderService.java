@@ -116,6 +116,37 @@ public class OrderService {
         return toDto(cart);
     }
 
+    @Transactional
+    public OrderDTO deleteItemFromCartById(UUID userId, UUID bookId) {
+
+        Order cart = orderRepository.findByUserIdAndStatusForUpdate(userId, OrderStatus.CART).orElseThrow(() -> new ResourceNotFoundException("Cart not found."));
+
+
+        cart.getItems().removeIf(orderItem -> orderItem.getBook().getId().equals(bookId));
+        recalculateTotals(cart);
+
+        if (cart.getItems().isEmpty()) {
+            orderRepository.delete(cart);
+        } else {
+            cart = orderRepository.save(cart);
+        }
+
+        return toDto(cart);
+
+
+    }
+
+    @Transactional
+    public void clearCart(UUID userId) {
+
+        Order cart = orderRepository.findByUserIdAndStatusForUpdate(userId, OrderStatus.CART).orElseThrow(() -> new ResourceNotFoundException("Cart not found."));
+
+        cart.getItems().clear();
+
+        orderRepository.delete(cart);
+
+    }
+
     @Transactional(readOnly = true)
     public OrderDTO getCart(UUID userId) {
         Order cart = orderRepository.findByUser_IdAndStatus(userId, OrderStatus.CART)
