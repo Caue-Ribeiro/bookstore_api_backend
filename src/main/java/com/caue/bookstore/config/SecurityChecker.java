@@ -18,7 +18,6 @@ public class SecurityChecker {
     public boolean isUserOwner(Authentication authentication, UUID targetId) {
 
         String currentUser = authentication.getName();
-        System.out.println("DEBUG - Current Authenticated User is: [" + currentUser + "]");
 
         return userRepository.findById(targetId).map(user -> user.getEmail().equals(currentUser)).orElse(false);
 

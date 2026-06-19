@@ -1,6 +1,5 @@
 package com.caue.bookstore.config;
 
-import com.caue.bookstore.enums.Permission;
 import com.caue.bookstore.filters.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,13 +63,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Allow your React/Vite frontend
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-        // Allow standard HTTP methods, plus OPTIONS for the preflight
+
+        configuration.setAllowedOrigins(List.of("http://localhost:5173","http://localhost:5174"));
+
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        // Allow the headers your frontend needs to send (like the JWT token)
+
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        // Allow credentials if you ever need to send cookies alongside the token
+
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
