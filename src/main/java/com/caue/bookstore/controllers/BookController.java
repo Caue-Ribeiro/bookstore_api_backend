@@ -2,11 +2,14 @@ package com.caue.bookstore.controllers;
 
 import com.caue.bookstore.dto.BookRequestDTO;
 import com.caue.bookstore.dto.BookResponseDTO;
+import com.caue.bookstore.entities.BookByCategory;
 import com.caue.bookstore.entities.BookEvent;
 import com.caue.bookstore.entities.ReaderProfileResponse;
+import com.caue.bookstore.enums.CategoryType;
 import com.caue.bookstore.services.BookService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,10 +41,31 @@ public class BookController {
 
 
     @GetMapping
-    ResponseEntity<Page<BookResponseDTO>> getAllBooks(Pageable pageable) {
-        Page<BookResponseDTO> books = service.getAllBooks(pageable);
+    ResponseEntity<Page<BookResponseDTO>> getAllBooks(@RequestParam(defaultValue = "0") int page,
+                                                      @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BookResponseDTO> books = service.getAllBooksPaginated(pageable);
 
         return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/list")
+    ResponseEntity<List<BookResponseDTO>> getAllBooks() {
+
+        List<BookResponseDTO> books = service.getAllBooks();
+
+        return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/category/{category}")
+    public ResponseEntity<Page<BookResponseDTO>> getBooksByCategoryPaginated(@PathVariable String category,
+                                                 @RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "12") int size){
+
+        Pageable pageable = PageRequest.of(page, size);
+       Page<BookResponseDTO> bookResponse= service.getBooksByCategoryPaginated(category, pageable);
+
+        return ResponseEntity.ok(bookResponse);
     }
 
     @GetMapping(value = "/events")

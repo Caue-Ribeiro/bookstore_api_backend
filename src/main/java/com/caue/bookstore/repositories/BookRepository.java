@@ -1,8 +1,13 @@
 package com.caue.bookstore.repositories;
 
+import com.caue.bookstore.dto.BookResponseDTO;
 import com.caue.bookstore.entities.Book;
+import com.caue.bookstore.entities.BookByCategory;
 import com.caue.bookstore.entities.BookEvent;
+import com.caue.bookstore.enums.CategoryType;
 import com.caue.bookstore.projections.BookProjection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -48,5 +53,7 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
                 SELECT be FROM BookEvent be
             """)
     List<BookEvent> findAllEvents();
+
+    Page<Book> findByCategories_Type(CategoryType categoryType, Pageable pageable);
 }
 

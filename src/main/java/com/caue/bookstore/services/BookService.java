@@ -4,6 +4,7 @@ import com.caue.bookstore.AIService.AssistantService;
 import com.caue.bookstore.dto.BookRequestDTO;
 import com.caue.bookstore.dto.BookResponseDTO;
 import com.caue.bookstore.entities.*;
+import com.caue.bookstore.enums.CategoryType;
 import com.caue.bookstore.exceptions.ResourceNotFoundException;
 import com.caue.bookstore.projections.BookProjection;
 import com.caue.bookstore.repositories.AuthorRepository;
@@ -16,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -53,7 +53,14 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public Page<@NonNull BookResponseDTO> getAllBooks(@RequestParam Pageable pageable) {
+    public List<BookResponseDTO> getAllBooks(){
+       List<Book> books= repository.findAll();
+
+      return books.stream().map(BookResponseDTO::new).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<@NonNull BookResponseDTO> getAllBooksPaginated(Pageable pageable) {
 
         return repository.findAll(pageable).map(BookResponseDTO::new);
     }
@@ -61,6 +68,13 @@ public class BookService {
     @Transactional(readOnly = true)
     public List<BookEvent> getBookEvents(){
         return  repository.findAllEvents();
+
+    }
+
+    @Transactional(readOnly = true)
+    public Page<BookResponseDTO> getBooksByCategoryPaginated(String category, Pageable pageable){
+        CategoryType categoryEnum = CategoryType.valueOf(category.toUpperCase());
+   return repository.findByCategories_Type(categoryEnum,pageable).map(BookResponseDTO::new);
 
     }
 
