@@ -2,7 +2,7 @@ package com.caue.bookstore.entities;
 
 import com.caue.bookstore.enums.UserRole;
 import jakarta.persistence.*;
-import org.jetbrains.annotations.NotNull;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

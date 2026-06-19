@@ -9,7 +9,8 @@ import com.caue.bookstore.exceptions.ResourceNotFoundException;
 import com.caue.bookstore.repositories.UserRepository;
 import com.caue.bookstore.utils.PasswordValidator;
 import com.caue.bookstore.utils.UserMapper;
-import org.jetbrains.annotations.NotNull;
+
+import jakarta.validation.constraints.NotNull;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
