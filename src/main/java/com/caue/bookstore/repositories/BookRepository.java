@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,5 +56,11 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
     List<BookEvent> findAllEvents();
 
     Page<Book> findByCategories_Type(CategoryType categoryType, Pageable pageable);
+
+    @Query("SELECT DISTINCT b FROM Book b LEFT JOIN b.authors a WHERE " +
+            "LOWER(b.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(a.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(a.lastName) LIKE LOWER(CONCAT('%', :query, '%'))")
+    Page<Book> searchBooks(@Param("query") String query, Pageable pageable);
 }
 

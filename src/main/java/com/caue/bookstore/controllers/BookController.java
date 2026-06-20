@@ -96,6 +96,18 @@ public class BookController {
        return ResponseEntity.ok(readerProfileResponse);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<Page<BookResponseDTO>> searchBooks(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BookResponseDTO> books = service.searchBooks(q, pageable);
+
+        return ResponseEntity.ok(books);
+    }
+
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookResponseDTO> editBook(@PathVariable UUID id,@Valid @RequestBody Map<String, Object> update) {

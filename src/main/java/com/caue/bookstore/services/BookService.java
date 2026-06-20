@@ -78,6 +78,11 @@ public class BookService {
 
     }
 
+    @Transactional(readOnly = true)
+    public Page<BookResponseDTO> searchBooks(String query, Pageable pageable) {
+        return repository.searchBooks(query, pageable).map(BookResponseDTO::new);
+    }
+
     @Transactional
     public BookResponseDTO insertNewBook(BookRequestDTO dto) {
 
