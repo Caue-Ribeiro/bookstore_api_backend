@@ -1,13 +1,10 @@
 package com.caue.bookstore.services;
 
+import com.caue.bookstore.AIService.AssistantService;
 import com.caue.bookstore.dto.OrderDTO;
 import com.caue.bookstore.dto.OrderItemDTO;
 import com.caue.bookstore.dto.PaymentDTO;
-import com.caue.bookstore.entities.Book;
-import com.caue.bookstore.entities.Order;
-import com.caue.bookstore.entities.OrderItem;
-import com.caue.bookstore.entities.Payment;
-import com.caue.bookstore.entities.User;
+import com.caue.bookstore.entities.*;
 import com.caue.bookstore.enums.OrderStatus;
 import com.caue.bookstore.exceptions.DatabaseException;
 import com.caue.bookstore.exceptions.InsufficientStockException;
@@ -24,9 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class OrderService {
@@ -35,15 +30,14 @@ public class OrderService {
     private final PaymentRepository paymentRepository;
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
+    private final AssistantService assistantService;
 
-    public OrderService(OrderRepository orderRepository,
-                        PaymentRepository paymentRepository,
-                        BookRepository bookRepository,
-                        UserRepository userRepository) {
+    public OrderService(OrderRepository orderRepository, PaymentRepository paymentRepository, BookRepository bookRepository, UserRepository userRepository, AssistantService assistantService) {
         this.orderRepository = orderRepository;
         this.paymentRepository = paymentRepository;
         this.bookRepository = bookRepository;
         this.userRepository = userRepository;
+        this.assistantService = assistantService;
     }
 
     @Transactional
@@ -298,8 +292,6 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public Page<OrderDTO> getAllOrders(Pageable pageable) {
-        // We eliminate the manual loop entirely.
-        // Page.map() handles the DTO conversion for us efficiently!
         return orderRepository.findAll(pageable).map(this::toDto);
     }
 
@@ -309,7 +301,6 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found."));
 
         try {
-            // Safely convert the String from the React frontend into your Enum
             order.setStatus(OrderStatus.valueOf(newStatus.toUpperCase()));
         } catch (IllegalArgumentException e) {
             throw new DatabaseException("Invalid status provided: " + newStatus);
@@ -317,6 +308,23 @@ public class OrderService {
 
         order = orderRepository.save(order);
         return toDto(order);
+    }
+
+    @Transactional
+    public BookJudger_Judgment userOrderChoiceAIJudger(UUID userId) {
+        Map<String, List<String>> userChoices = new HashMap<>();
+
+        List<String> titles =
+                orderRepository.findByUserIdAndStatusForUpdate(userId, OrderStatus.CART)
+                        .orElseThrow(() -> new ResourceNotFoundException("Cart not found."))
+                        .getItems().stream()
+                        .map(OrderItem::getBook)
+                        .map(Book::getTitle).toList();;
+
+        userChoices.put("user_choice", titles);
+
+
+        return assistantService.orderChoiceJudger(userChoices);
     }
 }
 

@@ -2,6 +2,7 @@ package com.caue.bookstore.controllers;
 
 import com.caue.bookstore.dto.OrderDTO;
 import com.caue.bookstore.dto.OrderStatusUpdateDTO;
+import com.caue.bookstore.entities.BookJudger_Judgment;
 import com.caue.bookstore.exceptions.DatabaseException;
 import com.caue.bookstore.services.OrderService;
 import jakarta.validation.constraints.Min;
@@ -17,6 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -125,5 +127,13 @@ public class OrderController {
 
         OrderDTO updatedOrder = orderService.updateOrderStatus(orderId, dto.status());
         return ResponseEntity.ok(updatedOrder);
+    }
+
+    @GetMapping("/order-choice-judger/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
+    public ResponseEntity<BookJudger_Judgment> userOrderChoiceAIJudger(@PathVariable UUID userId){
+        BookJudger_Judgment ai_judgment = orderService.userOrderChoiceAIJudger(userId);
+
+        return ResponseEntity.ok(ai_judgment);
     }
 }

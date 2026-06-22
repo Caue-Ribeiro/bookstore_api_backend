@@ -5,11 +5,13 @@ import com.caue.bookstore.dto.BookRequestDTO;
 import com.caue.bookstore.dto.BookResponseDTO;
 import com.caue.bookstore.entities.*;
 import com.caue.bookstore.enums.CategoryType;
+import com.caue.bookstore.enums.OrderStatus;
 import com.caue.bookstore.exceptions.ResourceNotFoundException;
 import com.caue.bookstore.projections.BookProjection;
 import com.caue.bookstore.repositories.AuthorRepository;
 import com.caue.bookstore.repositories.BookRepository;
 import com.caue.bookstore.repositories.CategoryRepository;
+import com.caue.bookstore.repositories.OrderRepository;
 import org.jspecify.annotations.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -179,4 +181,7 @@ public class BookService {
 
 
     }
+
+
+
 }

@@ -4,6 +4,7 @@ import com.caue.bookstore.dto.BookRequestDTO;
 import com.caue.bookstore.dto.BookResponseDTO;
 import com.caue.bookstore.entities.BookByCategory;
 import com.caue.bookstore.entities.BookEvent;
+import com.caue.bookstore.entities.BookJudger_Judgment;
 import com.caue.bookstore.entities.ReaderProfileResponse;
 import com.caue.bookstore.enums.CategoryType;
 import com.caue.bookstore.services.BookService;
