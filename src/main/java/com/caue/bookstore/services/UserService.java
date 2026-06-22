@@ -67,6 +67,12 @@ public class UserService implements UserDetailsService {
         return new UserDTO(entity);
     }
 
+    @Transactional(readOnly = true)
+    public Page<UserDTO> searchUser(String query, Pageable pageable){
+
+        return repository.searchUser(query, pageable).map(UserDTO::new);
+    }
+
     @Transactional
     public UserDTO insert(UserDTO dto) {
         

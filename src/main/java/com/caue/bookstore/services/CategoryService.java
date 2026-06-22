@@ -7,6 +7,8 @@ import com.caue.bookstore.exceptions.DatabaseException;
 import com.caue.bookstore.exceptions.ResourceNotFoundException;
 import com.caue.bookstore.repositories.CategoryRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -29,6 +31,14 @@ public class CategoryService {
         List<Category> categories = repository.findAll();
 
         return categories.stream().map(CategoryDTO::new).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CategoryDTO> searchCategory(String query, Pageable pageable){
+
+          return repository.searchCategories(query,pageable).map(CategoryDTO::new);
+
+
     }
 
     @Transactional

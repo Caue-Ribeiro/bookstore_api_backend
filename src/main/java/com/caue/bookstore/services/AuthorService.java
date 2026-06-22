@@ -8,6 +8,8 @@ import com.caue.bookstore.exceptions.ResourceNotFoundException;
 import com.caue.bookstore.projections.BookProjection;
 import com.caue.bookstore.repositories.AuthorRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +59,7 @@ public class AuthorService {
         return authorsDTO;
     }
 
+    @Transactional(readOnly = true)
     public WikipediaSummary getAuthorSummary(String authorName){
 
         authorName = authorName.replace(" ","_");
@@ -67,6 +70,11 @@ public class AuthorService {
                 .retrieve()
                 .body(WikipediaSummary.class);
 
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AuthorDTO> searchAuthor(String query, Pageable pageable){
+        return repository.searchAuthor(query, pageable).map(AuthorDTO::new);
     }
 
 

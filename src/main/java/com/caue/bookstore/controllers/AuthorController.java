@@ -4,6 +4,8 @@ import com.caue.bookstore.dto.AuthorDTO;
 import com.caue.bookstore.entities.WikipediaSummary;
 import com.caue.bookstore.services.AuthorService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +47,13 @@ public class AuthorController {
 
        return ResponseEntity.ok(wikipediaSummary);
 
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<AuthorDTO>> searchAuthors(@RequestParam String q, Pageable pageable){
+       Page<AuthorDTO> authors =  service.searchAuthor(q, pageable);
+
+       return ResponseEntity.ok(authors);
     }
 
     @PostMapping

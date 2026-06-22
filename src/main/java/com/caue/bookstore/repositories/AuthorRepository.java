@@ -2,9 +2,12 @@ package com.caue.bookstore.repositories;
 
 import com.caue.bookstore.entities.Author;
 import com.caue.bookstore.projections.BookProjection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -49,4 +52,10 @@ WHERE id = :id
 
 """)
     void deleteById(Long id);
+
+    @Query("""
+    SELECT a FROM Author a WHERE LOWER(a.name) LIKE LOWER(CONCAT('%',:query,'%')) OR 
+    LOWER(a.lastName) LIKE LOWER(CONCAT('%',:query,'%'))  
+""")
+    Page<Author> searchAuthor(@Param("query") String query, Pageable pageable);
 }

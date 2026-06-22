@@ -1,10 +1,15 @@
 package com.caue.bookstore.controllers;
 
 import com.caue.bookstore.dto.OrderDTO;
+import com.caue.bookstore.dto.OrderStatusUpdateDTO;
 import com.caue.bookstore.exceptions.DatabaseException;
 import com.caue.bookstore.services.OrderService;
 import jakarta.validation.constraints.Min;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +30,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    
+
     @PostMapping("/users/{userId}/cart/items/{bookId}")
     @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#userId)")
     public ResponseEntity<@NonNull OrderDTO> addToCart(@PathVariable UUID userId,
@@ -37,7 +42,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.addToCart(userId, bookId, quantity));
     }
 
-    
+
     @DeleteMapping("/users/{userId}/cart/items/{bookId}")
     @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#userId)")
     public ResponseEntity<@NonNull OrderDTO> removeFromCart(@PathVariable UUID userId,
@@ -65,35 +70,35 @@ public class OrderController {
 
         return ResponseEntity.noContent().build();
     }
-    
+
     @GetMapping("/users/{userId}/cart")
     @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#userId)")
     public ResponseEntity<@NonNull OrderDTO> getCart(@PathVariable UUID userId) {
         return ResponseEntity.ok(orderService.getCart(userId));
     }
 
-    
+
     @PostMapping("/users/{userId}/checkout")
     @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#userId)")
     public ResponseEntity<@NonNull OrderDTO> checkout(@PathVariable UUID userId) {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.checkout(userId));
     }
 
-    
+
     @PostMapping("/users/{userId}/{orderId}/pay")
     @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#userId)")
     public ResponseEntity<@NonNull OrderDTO> pay(@PathVariable UUID userId, @PathVariable UUID orderId) {
         return ResponseEntity.ok(orderService.pay(userId, orderId));
     }
 
-    
+
     @PostMapping("/users/{userId}/{orderId}/cancel")
     @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#userId)")
     public ResponseEntity<@NonNull OrderDTO> cancel(@PathVariable UUID userId, @PathVariable UUID orderId) {
         return ResponseEntity.ok(orderService.cancel(userId, orderId));
     }
 
-    
+
     @GetMapping("/users/{userId}")
     @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#userId)")
     public ResponseEntity<@NonNull List<@NonNull OrderDTO>> getOrdersByUser(@PathVariable UUID userId) {
@@ -102,14 +107,23 @@ public class OrderController {
 
     @GetMapping()
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<OrderDTO>> getAllOrders(){
+    public ResponseEntity<Page<OrderDTO>> getAllOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<OrderDTO> orders = orderService.getAllOrders();
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "moment"));
+        Page<OrderDTO> orders = orderService.getAllOrders(pageable);
 
         return ResponseEntity.ok(orders);
     }
+
+    @PatchMapping("/{orderId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<OrderDTO> updateOrderStatus(
+            @PathVariable UUID orderId,
+            @RequestBody @Validated OrderStatusUpdateDTO dto) {
+
+        OrderDTO updatedOrder = orderService.updateOrderStatus(orderId, dto.status());
+        return ResponseEntity.ok(updatedOrder);
+    }
 }
-
-
-
-

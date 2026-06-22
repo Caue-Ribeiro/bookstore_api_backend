@@ -5,6 +5,8 @@ import com.caue.bookstore.dto.CategoryRequestDTO;
 import com.caue.bookstore.services.CategoryService;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +29,13 @@ public class CategoryController {
         List<CategoryDTO> categories = service.getAllCategories();
 
         return ResponseEntity.ok(categories);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<CategoryDTO>> searchCategories(String query, Pageable pageable){
+       Page<CategoryDTO> categoryDTO = service.searchCategory(query,pageable);
+
+       return ResponseEntity.ok(categoryDTO);
     }
 
     @PostMapping

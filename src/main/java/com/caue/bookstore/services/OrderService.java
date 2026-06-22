@@ -17,6 +17,8 @@ import com.caue.bookstore.repositories.BookRepository;
 import com.caue.bookstore.repositories.OrderRepository;
 import com.caue.bookstore.repositories.PaymentRepository;
 import com.caue.bookstore.repositories.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -295,13 +297,26 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderDTO> getAllOrders(){
-       List<Order> entity =  orderRepository.findAll();
-       List<OrderDTO> orderDTOS = new ArrayList<>();
+    public Page<OrderDTO> getAllOrders(Pageable pageable) {
+        // We eliminate the manual loop entirely.
+        // Page.map() handles the DTO conversion for us efficiently!
+        return orderRepository.findAll(pageable).map(this::toDto);
+    }
 
-       entity.forEach(order -> orderDTOS.add(toDto(order)));
+    @Transactional
+    public OrderDTO updateOrderStatus(UUID orderId, String newStatus) {
+        Order order = orderRepository.findByIdForUpdate(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found."));
 
-       return orderDTOS;
+        try {
+            // Safely convert the String from the React frontend into your Enum
+            order.setStatus(OrderStatus.valueOf(newStatus.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            throw new DatabaseException("Invalid status provided: " + newStatus);
+        }
+
+        order = orderRepository.save(order);
+        return toDto(order);
     }
 }
 

@@ -47,4 +47,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     WHERE email = :username AND role = :role
 """)
     User findUserByAuthorities(String username, String role);
+
+    @Query("""
+    SELECT u FROM User u WHERE LOWER(u.name) LIKE LOWER(CONCAT('%',:query,'%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%',:query,'%')) OR LOWER(u.lastName) LIKE LOWER(CONCAT('%',:query,'%')) 
+""")
+    Page<User> searchUser(@Param("query") String query, Pageable pageable);
 }

@@ -64,6 +64,15 @@ public class UserController {
     }
 
 
+    @GetMapping("/search")
+    public ResponseEntity<Page<UserDTO>> searchUser(@RequestParam String q, Pageable pageable){
+
+      Page<UserDTO> users =  service.searchUser(q,pageable);
+
+      return  ResponseEntity.ok(users);
+    }
+
+
     @PatchMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','CLIENT')")
     public ResponseEntity<UserDTO> editUser(@PathVariable UUID id, @RequestBody UserDTO dto) {
