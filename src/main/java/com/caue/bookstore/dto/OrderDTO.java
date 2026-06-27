@@ -22,6 +22,9 @@ public class OrderDTO {
     private UUID userId;
     @PositiveOrZero(message = "Order total must be zero or positive.")
     private BigDecimal total;
+
+    private String checkoutUrl;
+
     @Valid
     private List<OrderItemDTO> items = new ArrayList<>();
     private PaymentDTO payment;
@@ -83,5 +86,13 @@ public class OrderDTO {
 
     public void setPayment(PaymentDTO payment) {
         this.payment = payment;
+    }
+
+    public String getCheckoutUrl() {
+        return checkoutUrl;
+    }
+
+    public void setCheckoutUrl(String checkoutUrl) {
+        this.checkoutUrl = checkoutUrl;
     }
 }

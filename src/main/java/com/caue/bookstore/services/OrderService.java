@@ -10,6 +10,7 @@ import com.caue.bookstore.exceptions.DatabaseException;
 import com.caue.bookstore.exceptions.InsufficientStockException;
 import com.caue.bookstore.exceptions.InvalidOrderStateException;
 import com.caue.bookstore.exceptions.ResourceNotFoundException;
+import com.caue.bookstore.payment_gateway.services.StripeService;
 import com.caue.bookstore.repositories.BookRepository;
 import com.caue.bookstore.repositories.OrderRepository;
 import com.caue.bookstore.repositories.PaymentRepository;
@@ -31,13 +32,15 @@ public class OrderService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final AssistantService assistantService;
+    private final StripeService stripeService;
 
-    public OrderService(OrderRepository orderRepository, PaymentRepository paymentRepository, BookRepository bookRepository, UserRepository userRepository, AssistantService assistantService) {
+    public OrderService(OrderRepository orderRepository, PaymentRepository paymentRepository, BookRepository bookRepository, UserRepository userRepository, AssistantService assistantService, StripeService stripeService) {
         this.orderRepository = orderRepository;
         this.paymentRepository = paymentRepository;
         this.bookRepository = bookRepository;
         this.userRepository = userRepository;
         this.assistantService = assistantService;
+        this.stripeService = stripeService;
     }
 
     @Transactional
@@ -178,7 +181,21 @@ public class OrderService {
 
         cart = orderRepository.save(cart);
         paymentRepository.save(payment);
-        return toDto(cart);
+
+        OrderDTO dto = toDto(cart);
+
+        try {
+            String stripeUrl = stripeService.createCheckoutSession(cart);
+            dto.setCheckoutUrl(stripeUrl);
+        } catch (com.stripe.exception.StripeException e) {
+            System.err.println("STRIPE ERROR DETAILS: " + e.getMessage());
+            throw new RuntimeException("Stripe API Error: " + e.getMessage(), e);
+        } catch (Exception e) {
+            System.err.println("GENERAL ERROR: " + e.getMessage());
+            throw new RuntimeException("Failed to generate payment session", e);
+        }
+
+        return dto;
     }
 
     @Transactional

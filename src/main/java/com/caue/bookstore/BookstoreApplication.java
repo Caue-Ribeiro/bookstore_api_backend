@@ -3,7 +3,6 @@ package com.caue.bookstore;
 import com.caue.bookstore.entities.User;
 import com.caue.bookstore.enums.UserRole;
 import com.caue.bookstore.repositories.UserRepository;
-import com.caue.bookstore.services.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,9 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestClient;
-
 import java.time.LocalDate;
-import java.util.Date;
 
 @SpringBootApplication
 public class BookstoreApplication implements CommandLineRunner {
@@ -48,6 +45,10 @@ public class BookstoreApplication implements CommandLineRunner {
         }else {
             System.out.println("User already exists");
         }
+
+
+
+
     }
 
     @Configuration

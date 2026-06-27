@@ -157,6 +157,12 @@
             <version>1.6.3</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>33.1.0</version>
+        </dependency>
 	</dependencies>
 
 	<build>
