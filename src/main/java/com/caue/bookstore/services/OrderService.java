@@ -219,10 +219,22 @@ public class OrderService {
             paymentRepository.save(payment);
         }
 
-        order.setStatus(OrderStatus.PAID);
-        order.setMoment(Instant.now());
+
         order = orderRepository.save(order);
-        return toDto(order);
+       OrderDTO dto= toDto(order);
+
+        try {
+            String stripeUrl = stripeService.createCheckoutSession(order);
+            dto.setCheckoutUrl(stripeUrl);
+        } catch (com.stripe.exception.StripeException e) {
+            System.err.println("STRIPE ERROR DETAILS: " + e.getMessage());
+            throw new RuntimeException("Stripe API Error: " + e.getMessage(), e);
+        } catch (Exception e) {
+            System.err.println("GENERAL ERROR: " + e.getMessage());
+            throw new RuntimeException("Failed to generate payment session", e);
+        }
+
+        return dto;
     }
 
     @Transactional

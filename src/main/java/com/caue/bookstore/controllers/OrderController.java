@@ -90,7 +90,7 @@ public class OrderController {
     @PostMapping("/users/{userId}/{orderId}/pay")
     @PreAuthorize("hasRole('ADMIN') or @securityChecker.isUserOwner(authentication,#userId)")
     public ResponseEntity<@NonNull OrderDTO> pay(@PathVariable UUID userId, @PathVariable UUID orderId) {
-        return ResponseEntity.ok(orderService.pay(userId, orderId));
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.pay(userId, orderId));
     }
 
 
