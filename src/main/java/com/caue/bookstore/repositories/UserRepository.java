@@ -25,7 +25,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Modifying
     @Query(nativeQuery = true, value = """
-                DELETE FROM bs_user 
+                UPDATE bs_user 
+                SET deleted_at = CURRENT_DATE
                 WHERE id = :id
             """)
     void deleteUserById(@Param("id") UUID id);

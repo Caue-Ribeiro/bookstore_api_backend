@@ -36,14 +36,13 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Order> orders = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
-    private List<Rate> rates = new ArrayList<>();
-
     @Column(name = "failed_login_attempts", nullable = false)
     private Integer failedLoginAttempts = 0;
 
     @Column(name = "is_locked", nullable = false)
     private Boolean isLocked = false;
+
+    private LocalDate deleted_at;
 
     @Column(name = "lock_expiration_time")
     private Long lockExpirationTime;
@@ -114,10 +113,6 @@ public class User implements UserDetails {
 
     public List<Order> getOrders() {
         return orders;
-    }
-
-    public List<Rate> getRates() {
-        return rates;
     }
 
     public void setPassword(String password) {
@@ -232,5 +227,13 @@ public class User implements UserDetails {
 
     public void setAuditLogs(List<AuditLog> auditLogs) {
         this.auditLogs = auditLogs;
+    }
+
+    public LocalDate getDeleted_at() {
+        return deleted_at;
+    }
+
+    public void setDeleted_at(LocalDate deleted_at) {
+        this.deleted_at = deleted_at;
     }
 }

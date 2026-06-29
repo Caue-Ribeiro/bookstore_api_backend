@@ -30,9 +30,6 @@ public class Book {
 
     private String coverImageUrl;
 
-    @OneToMany(mappedBy = "book")
-    private List<Rate> rates = new ArrayList<>();
-
     @ManyToMany
     @JoinTable(name = "bs_book_author", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns =
     @JoinColumn(name = "author_id"))
@@ -100,14 +97,6 @@ public class Book {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public List<Rate> getRates() {
-        return rates;
-    }
-
-    public void setRates(List<Rate> rates) {
-        this.rates = rates;
     }
 
     public Set<Author> getAuthors() {

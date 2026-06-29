@@ -13,6 +13,7 @@ public class UserDTO {
     private String email;
     private LocalDate birthdate;
     private String password;
+    private LocalDate deletedAt;
 
     private UserRole role;
 
@@ -20,14 +21,15 @@ public class UserDTO {
     public UserDTO() {
     }
 
-    public UserDTO(UUID id, String name, String lastName, String email, LocalDate birthdate, String password,
-                   UserRole role) {
+
+    public UserDTO(UUID id, String name, String lastName, String email, LocalDate birthdate, String password, LocalDate deletedAt, UserRole role) {
         this.id = id;
         this.name = name;
         this.lastName = lastName;
         this.email = email;
         this.birthdate = birthdate;
         this.password = password;
+        this.deletedAt = deletedAt;
         this.role = role;
     }
 
@@ -38,6 +40,7 @@ public class UserDTO {
         email = entity.getEmail();
         birthdate = entity.getBirthdate();
         role = entity.getRole();
+        deletedAt = entity.getDeleted_at();
 
     }
 
@@ -96,5 +99,13 @@ public class UserDTO {
 
     public void setRole(UserRole role) {
         this.role = role;
+    }
+
+    public LocalDate getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDate deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }

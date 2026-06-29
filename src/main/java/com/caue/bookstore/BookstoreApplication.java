@@ -39,6 +39,7 @@ public class BookstoreApplication implements CommandLineRunner {
             adminUser.setPassword(passwordEncoder.encode("CaueAdmin!123"));
             adminUser.setEmail("caue@email.com");adminUser.setBirthdate(LocalDate.parse("1996-01-29"));
             adminUser.setRole(UserRole.ADMIN);
+            adminUser.setDeleted_at(null);
 
             userRepository.save(adminUser);
             System.out.println("✅ Admin user created!");

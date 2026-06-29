@@ -65,6 +65,7 @@ public class UserController {
 
 
     @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Page<UserDTO>> searchUser(@RequestParam String q, Pageable pageable){
 
       Page<UserDTO> users =  service.searchUser(q,pageable);

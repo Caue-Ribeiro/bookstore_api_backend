@@ -53,7 +53,9 @@ public class UserService implements UserDetailsService {
     @NotNull
     @Override
     public UserDetails loadUserByUsername(@NotNull String username) throws UsernameNotFoundException {
-        return repository.findByEmail(username).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MSG));
+        User userEntity = repository.findByEmail(username).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MSG));
+
+        return checkUserDeletion(userEntity);
     }
 
     @Transactional(readOnly = true)
@@ -63,8 +65,13 @@ public class UserService implements UserDetailsService {
 
     @Transactional(readOnly = true)
     public UserDTO getUserById(UUID id) {
-        User entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MSG));
-        return new UserDTO(entity);
+        User userEntity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MSG));
+
+
+        User user = checkUserDeletion(userEntity);
+
+        return new UserDTO(user);
+
     }
 
     @Transactional(readOnly = true)
@@ -87,9 +94,6 @@ public class UserService implements UserDetailsService {
         return new UserDTO(entity);
     }
 
-    
-
-    
     @Transactional
     public void handleSuccessfulLogin(User user) {
         user.setFailedLoginAttempts(0);
@@ -209,6 +213,8 @@ public class UserService implements UserDetailsService {
         }
     }
 
+    //HELPER METHODS
+
     private void dtoToEntity(UserDTO dto, User entity) {
         entity.setName(dto.getName());
         entity.setLastName(dto.getLastName());
@@ -228,6 +234,15 @@ public class UserService implements UserDetailsService {
         
         entity.setFailedLoginAttempts(0);
         entity.setIsLocked(false);
+    }
+
+    private User checkUserDeletion(User user){
+
+        if (user.getDeleted_at() != null) {
+            throw new ResourceNotFoundException(NOT_FOUND_MSG);
+        }
+        return user;
+
     }
 }
 
