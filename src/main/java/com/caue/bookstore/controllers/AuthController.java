@@ -1,7 +1,6 @@
 package com.caue.bookstore.controllers;
 
 import com.caue.bookstore.dto.PasswordResetConfirm;
-import com.caue.bookstore.dto.PasswordResetRequest;
 import com.caue.bookstore.entities.AuthRequest;
 import com.caue.bookstore.entities.User;
 import com.caue.bookstore.exceptions.UserLockedException;
@@ -115,14 +114,14 @@ public class AuthController {
         return ResponseEntity.badRequest().body(response);
     }
 
-    
-    @PostMapping("/forgot-password")
-    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody PasswordResetRequest request) {
-        userService.requestPasswordReset(request.getEmail());
 
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "If an account exists with that email, a password reset link will be sent.");
-        return ResponseEntity.ok(response);
+
+    @PostMapping("/forgot-password/{email}")
+    public ResponseEntity<Map<String, Object>> forgotPassword(@PathVariable String email){
+
+        Map<String, Object> response =  userService.requestPasswordReset(email);
+
+       return ResponseEntity.ok(response);
     }
 
     
@@ -133,5 +132,13 @@ public class AuthController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "Password has been successfully reset. You can now login with your new password.");
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/reset-password-otp")
+    public ResponseEntity<Map<String, Object>> resetPasswordWithOtp(@RequestBody Map<String,String> payload){
+
+        Map<String,Object> response= userService.resetPasswordWithOtp(payload);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

@@ -50,6 +50,10 @@ public class User implements UserDetails {
     @Column(name = "last_login")
     private Long lastLogin;
 
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
+    private OneTimePassword oneTimePassword;
+
+
     @Column(name = "password_reset_token", unique = true)
     private String passwordResetToken;
 
@@ -235,5 +239,13 @@ public class User implements UserDetails {
 
     public void setDeleted_at(LocalDate deleted_at) {
         this.deleted_at = deleted_at;
+    }
+
+    public OneTimePassword getOneTimePassword() {
+        return oneTimePassword;
+    }
+
+    public void setOneTimePassword(OneTimePassword oneTimePassword) {
+        this.oneTimePassword = oneTimePassword;
     }
 }

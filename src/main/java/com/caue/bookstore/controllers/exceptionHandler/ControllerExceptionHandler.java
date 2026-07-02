@@ -98,4 +98,13 @@ public class ControllerExceptionHandler {
 
         return ResponseEntity.status(httpStatus).body(error);
     }
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<CustomError> customException(CustomException e, HttpServletRequest request) {
+        HttpStatus httpStatus = HttpStatus.EXPECTATION_FAILED;
+
+        CustomError error = new CustomError(Instant.now(), httpStatus, e.getMessage(), request.getRequestURI());
+
+        return ResponseEntity.status(httpStatus).body(error);
+    }
 }

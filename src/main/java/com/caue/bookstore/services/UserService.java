@@ -1,11 +1,14 @@
 package com.caue.bookstore.services;
 
 import com.caue.bookstore.dto.UserDTO;
+import com.caue.bookstore.entities.OneTimePassword;
 import com.caue.bookstore.entities.User;
 import com.caue.bookstore.enums.UserRole;
+import com.caue.bookstore.exceptions.CustomException;
 import com.caue.bookstore.exceptions.DatabaseException;
 import com.caue.bookstore.exceptions.InvalidResetTokenException;
 import com.caue.bookstore.exceptions.ResourceNotFoundException;
+import com.caue.bookstore.repositories.OTPRepository;
 import com.caue.bookstore.repositories.UserRepository;
 import com.caue.bookstore.utils.PasswordValidator;
 import com.caue.bookstore.utils.UserMapper;
@@ -14,6 +17,8 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,9 +30,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -36,6 +41,8 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final AuditLogService auditLogService;
+    private final OTPRepository otpRepository;
+    private final MailSender mailSender;
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private static final long LOCK_DURATION_MS = 15 * 60 * 1000; 
@@ -43,11 +50,13 @@ public class UserService implements UserDetailsService {
 
     private final String NOT_FOUND_MSG = "User not found.";
 
-    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, UserMapper userMapper, AuditLogService auditLogService) {
+    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, UserMapper userMapper, AuditLogService auditLogService, OTPRepository otpRepository, MailSender mailSender) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.auditLogService = auditLogService;
+        this.otpRepository = otpRepository;
+        this.mailSender = mailSender;
     }
 
     @NotNull
@@ -136,21 +145,38 @@ public class UserService implements UserDetailsService {
         return responseMsg;
     }
 
-    
     @Transactional
-    public void requestPasswordReset(String email) {
-        User user = repository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User with email " + email + " not found."));
+    public Map<String,Object> requestPasswordReset(String email){
+        User user = repository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MSG));
 
-        String resetToken = PasswordValidator.generateResetToken();
-        user.setPasswordResetToken(resetToken);
-        user.setResetTokenExpiration(System.currentTimeMillis() + RESET_TOKEN_VALIDITY_MS);
-        repository.save(user);
+        long randomNumber = otpGenerator();
+        long expirationMinutes = 60 * 1000;
 
-        auditLogService.logAction(user, "PASSWORD_RESET_REQUESTED", "Password reset token generated");
+        OneTimePassword otp = new OneTimePassword();
 
-        
-        System.out.println("Password reset token for user " + email + ": " + resetToken);
+        try{
+
+        otp.setOtp(randomNumber);
+        otp.setExpirationTime(Instant.now().plus(expirationMinutes, ChronoUnit.MILLIS));
+        otp.setUser(user);
+        otpRepository.save(otp);
+        }catch (DataIntegrityViolationException e ){
+            throw new DatabaseException("Data integrity has been violated.");
+        }
+
+        SimpleMailMessage msg = new SimpleMailMessage();
+
+
+        msg.setTo(email);
+        String text = String.format("Hello, %s!\nThis is your OTP for account password reset: %d", user.getName(),
+                otp.getOtp());
+        msg.setText(text);
+        msg.setSubject("Your One Time Password");
+
+        mailSender.send(msg);
+
+        return Map.of("message", "Email successfully sent!");
+
     }
 
     
@@ -176,6 +202,38 @@ public class UserService implements UserDetailsService {
 
         repository.save(user);
         auditLogService.logAction(user, "PASSWORD_RESET", "Password successfully reset");
+    }
+
+    @Transactional
+    public Map<String, Object> resetPasswordWithOtp(Map<String, String> payload) {
+        User user = repository.findByEmail(payload.get("email")).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MSG));
+
+        OneTimePassword databaseOtp = otpRepository.getOneTimePasswordsByUserId(user.getId());
+
+        if (!payload.get("otp").equals(databaseOtp.getOtp().toString())) {
+            throw new CustomException("Wrong one time password");
+        }
+
+        if (!(Instant.now().isBefore(databaseOtp.getExpirationTime()))) {
+            user.setOneTimePassword(null);
+            otpRepository.deleteById(databaseOtp.getId());
+
+            return Map.of("status", 417, "message", "One time password has expired.");
+        }
+
+
+        String newPassword = payload.get("newPassword");
+        PasswordValidator.validatePasswordStrength(newPassword);
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setOneTimePassword(null);
+
+        repository.save(user);
+        otpRepository.deleteById(databaseOtp.getId());
+        otpRepository.flush();
+
+        return Map.of("status", 201, "message", "Password successfully uploaded");
+
     }
 
     @Transactional
@@ -243,6 +301,10 @@ public class UserService implements UserDetailsService {
         }
         return user;
 
+    }
+
+    public Integer otpGenerator(){
+      return  new Random().nextInt(100_000,999_999);
     }
 }
 
