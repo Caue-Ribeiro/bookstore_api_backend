@@ -15,6 +15,7 @@ import com.caue.bookstore.repositories.BookRepository;
 import com.caue.bookstore.repositories.OrderRepository;
 import com.caue.bookstore.repositories.PaymentRepository;
 import com.caue.bookstore.repositories.UserRepository;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -70,9 +71,11 @@ public class OrderService {
 
         if (item == null) {
             item = new OrderItem(book, cart, quantity, book.getPrice(), book.getCoverImageUrl());
+            book.setStock(book.getStock() - quantity);
             cart.addItem(item);
         } else {
             int updatedQuantity = item.getQuantity() + quantity;
+            book.setStock(book.getStock() - quantity);
             ensureStockAvailable(book, updatedQuantity);
             item.setQuantity(updatedQuantity);
             item.setPrice(book.getPrice());
@@ -110,9 +113,11 @@ public class OrderService {
             item.setTotal();
         }
 
+        item.getBook().setStock(item.getBook().getStock() + quantity);
         recalculateTotals(cart);
         cart = orderRepository.save(cart);
         return toDto(cart);
+
     }
 
     @Transactional
@@ -120,8 +125,14 @@ public class OrderService {
 
         Order cart = orderRepository.findByUserIdAndStatusForUpdate(userId, OrderStatus.CART).orElseThrow(() -> new ResourceNotFoundException("Cart not found."));
 
+        Book book = bookRepository.findById(bookId).orElseThrow(() -> new ResourceNotFoundException("Book not found."));
+
+        List<OrderItem> orderItems = cart.getItems().stream().filter(orderItem -> orderItem.getBook().getId().equals(bookId)).toList();
+
+        book.setStock(book.getStock() + orderItems.getFirst().getQuantity());
 
         cart.getItems().removeIf(orderItem -> orderItem.getBook().getId().equals(bookId));
+
         recalculateTotals(cart);
 
         if (cart.getItems().isEmpty()) {
@@ -129,10 +140,9 @@ public class OrderService {
         } else {
             cart = orderRepository.save(cart);
         }
+        bookRepository.save(book);
 
         return toDto(cart);
-
-
     }
 
     @Transactional
@@ -140,7 +150,10 @@ public class OrderService {
 
         Order cart = orderRepository.findByUserIdAndStatusForUpdate(userId, OrderStatus.CART).orElseThrow(() -> new ResourceNotFoundException("Cart not found."));
 
+        restoreStock(cart);
+
         cart.getItems().clear();
+
 
         orderRepository.delete(cart);
 
@@ -264,6 +277,45 @@ public class OrderService {
         return orderRepository.findAllByUser_IdOrderByMomentDesc(userId).stream().map(this::toDto).toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<OrderDTO> getAllOrders(Pageable pageable) {
+        return orderRepository.findAll(pageable).map(this::toDto);
+    }
+
+    @Transactional
+    public OrderDTO updateOrderStatus(UUID orderId, String newStatus) {
+        Order order = orderRepository.findByIdForUpdate(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found."));
+
+        try {
+            order.setStatus(OrderStatus.valueOf(newStatus.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            throw new DatabaseException("Invalid status provided: " + newStatus);
+        }
+
+        order = orderRepository.save(order);
+        return toDto(order);
+    }
+
+    @Transactional
+    public BookJudger_Judgment userOrderChoiceAIJudger(UUID userId) {
+        Map<String, List<String>> userChoices = new HashMap<>();
+
+        List<String> titles =
+                orderRepository.findByUserIdAndStatusForUpdate(userId, OrderStatus.CART)
+                        .orElseThrow(() -> new ResourceNotFoundException("Cart not found."))
+                        .getItems().stream()
+                        .map(OrderItem::getBook)
+                        .map(Book::getTitle).toList();;
+
+        userChoices.put("user_choice", titles);
+
+
+        return assistantService.orderChoiceJudger(userChoices);
+    }
+
+    //HELPER METHODS
+
     private void restoreStock(Order order) {
         for (OrderItem item : order.getItems()) {
             Book book = bookRepository.findById(item.getBook().getId())
@@ -317,43 +369,6 @@ public class OrderService {
         }
 
         return dto;
-    }
-
-    @Transactional(readOnly = true)
-    public Page<OrderDTO> getAllOrders(Pageable pageable) {
-        return orderRepository.findAll(pageable).map(this::toDto);
-    }
-
-    @Transactional
-    public OrderDTO updateOrderStatus(UUID orderId, String newStatus) {
-        Order order = orderRepository.findByIdForUpdate(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found."));
-
-        try {
-            order.setStatus(OrderStatus.valueOf(newStatus.toUpperCase()));
-        } catch (IllegalArgumentException e) {
-            throw new DatabaseException("Invalid status provided: " + newStatus);
-        }
-
-        order = orderRepository.save(order);
-        return toDto(order);
-    }
-
-    @Transactional
-    public BookJudger_Judgment userOrderChoiceAIJudger(UUID userId) {
-        Map<String, List<String>> userChoices = new HashMap<>();
-
-        List<String> titles =
-                orderRepository.findByUserIdAndStatusForUpdate(userId, OrderStatus.CART)
-                        .orElseThrow(() -> new ResourceNotFoundException("Cart not found."))
-                        .getItems().stream()
-                        .map(OrderItem::getBook)
-                        .map(Book::getTitle).toList();;
-
-        userChoices.put("user_choice", titles);
-
-
-        return assistantService.orderChoiceJudger(userChoices);
     }
 }
 
