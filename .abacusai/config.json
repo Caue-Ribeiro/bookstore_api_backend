@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./mvnw test 2>&1 || true)",
+      "Bash(mvnw.cmd test)"
+    ]
+  }
+}
