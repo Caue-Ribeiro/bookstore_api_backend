@@ -17,7 +17,6 @@ import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class AuthorService {
@@ -37,14 +36,13 @@ public class AuthorService {
 
     @Transactional(readOnly = true)
     public AuthorDTO getAuthorById(Long id) {
-        try {
+        List<BookProjection> author = repository.findAuthorById(id);
 
-            List<BookProjection> author = repository.findAuthorById(id);
-
-            return new AuthorResponseDTO(author);
-        } catch (NoSuchElementException e) {
+        if (author == null || author.isEmpty()) {
             throw new ResourceNotFoundException(EXCEPTION_MESSAGE);
         }
+
+        return new AuthorResponseDTO(author);
     }
 
     @Transactional(readOnly = true)
