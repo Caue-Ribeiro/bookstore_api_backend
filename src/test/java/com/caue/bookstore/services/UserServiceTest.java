@@ -14,8 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -48,8 +47,8 @@ class UserServiceTest {
 
         Map<String, String> result = userService.handleFailedLoginAttempt(user);
 
-        assertTrue(Boolean.TRUE.equals(user.getIsLocked()));
-        assertTrue(user.getLockExpirationTime() != null);
+        assertEquals(Boolean.TRUE, user.getIsLocked());
+        assertNotNull(user.getLockExpirationTime());
         assertTrue(result.containsKey("status"));
         verify(repository).saveAndFlush(user);
         verify(auditLogService).logAction(eq(user), eq("LOGIN_FAILED"), any(String.class));
