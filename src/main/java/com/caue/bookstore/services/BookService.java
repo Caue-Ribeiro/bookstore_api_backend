@@ -142,23 +142,20 @@ public class BookService {
         }
 
         if (!value.isEmpty()) {
-            Set<Map.Entry<String, Object>> attributes = value.entrySet();
-            while (attributes.iterator().hasNext()) {
-                System.out.println(attributes.iterator().next().getKey());
-                String attributeKey = attributes.iterator().next().getKey();
+            for (Map.Entry<String, Object> entry : value.entrySet()) {
+                String attributeKey = entry.getKey();
                 Field field = ReflectionUtils.findField(Book.class, attributeKey);
                 try {
                     if (field != null) {
                         field.setAccessible(true);
-                        Object convertedField = modelMapper.map(value.get(attributeKey), field.getType());
+                        Object convertedField = modelMapper.map(entry.getValue(), field.getType());
                         ReflectionUtils.setField(field, book, convertedField);
                     }
-
                 } catch (Exception e) {
-                    throw new RuntimeException(e.getMessage());
+                    throw new RuntimeException("Failed to update field: " + attributeKey, e);
                 }
-                value.remove(attributeKey);
             }
+            value.clear();
         }
         return modelMapper.map(book, BookResponseDTO.class);
     }
