@@ -1,5 +1,6 @@
 package com.caue.bookstore.controllers;
 
+import com.caue.bookstore.dto.ForgotPasswordDTO;
 import com.caue.bookstore.dto.PasswordResetConfirm;
 import com.caue.bookstore.entities.AuthRequest;
 import com.caue.bookstore.entities.User;
@@ -116,10 +117,10 @@ public class AuthController {
 
 
 
-    @PostMapping("/forgot-password/{email}")
-    public ResponseEntity<Map<String, Object>> forgotPassword(@PathVariable String email){
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, Object>> forgotPassword(@RequestBody ForgotPasswordDTO dto){
 
-        Map<String, Object> response =  userService.requestPasswordReset(email);
+        Map<String, Object> response =  userService.requestPasswordReset(dto);
 
        return ResponseEntity.ok(response);
     }

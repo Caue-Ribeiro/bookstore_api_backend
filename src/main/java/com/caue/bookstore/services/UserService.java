@@ -1,5 +1,6 @@
 package com.caue.bookstore.services;
 
+import com.caue.bookstore.dto.ForgotPasswordDTO;
 import com.caue.bookstore.dto.UserDTO;
 import com.caue.bookstore.entities.OneTimePassword;
 import com.caue.bookstore.entities.User;
@@ -146,37 +147,43 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public Map<String,Object> requestPasswordReset(String email){
-        User user = repository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MSG));
-
+    public Map<String,Object> requestPasswordReset(ForgotPasswordDTO dto){
         long randomNumber = otpGenerator();
         long expirationMinutes = 60 * 1000;
+        Instant newExpirationTime = Instant.now().plus(expirationMinutes, ChronoUnit.MILLIS);
 
-        OneTimePassword otp = new OneTimePassword();
+        User user = repository.findByEmail(dto.email()).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MSG));
 
-        try{
+        OneTimePassword otp = otpRepository.getOneTimePasswordsByUserId(user.getId());
 
-        otp.setOtp(randomNumber);
-        otp.setExpirationTime(Instant.now().plus(expirationMinutes, ChronoUnit.MILLIS));
-        otp.setUser(user);
-        otpRepository.save(otp);
-        }catch (DataIntegrityViolationException e ){
+        if (otp != null) {
+            if (Instant.now().isBefore(otp.getExpirationTime())) {
+
+                return Map.of("message", "Email already sent. Please check your e-mail box.");
+            }
+            otp.setExpirationTime(newExpirationTime);
+            otp.setOtp(randomNumber);
+
+        } else {
+            otp = new OneTimePassword();
+            otp.setOtp(randomNumber);
+            otp.setExpirationTime(Instant.now().plus(expirationMinutes, ChronoUnit.MILLIS));
+            otp.setUser(user);
+        }
+        try {
+
+            otpRepository.save(otp);
+        } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Data integrity has been violated.");
         }
 
         SimpleMailMessage msg = new SimpleMailMessage();
-
-
-        msg.setTo(email);
-        String text = String.format("Hello, %s!\nThis is your OTP for account password reset: %d", user.getName(),
-                otp.getOtp());
+        msg.setTo(dto.email());
+        String text = String.format("Hello, %s!\nThis is your OTP for account password reset: %d", user.getName(), otp.getOtp());
         msg.setText(text);
         msg.setSubject("Your One Time Password");
-
         mailSender.send(msg);
-
         return Map.of("message", "Email successfully sent!");
-
     }
 
     
