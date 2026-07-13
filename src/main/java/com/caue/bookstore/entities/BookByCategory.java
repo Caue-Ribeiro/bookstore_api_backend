@@ -95,7 +95,6 @@ public class BookByCategory {
         this.stock = stock;
     }
 
-    // toString method for logging/debugging
     @Override
     public String toString() {
         return "BookByCategory{" +

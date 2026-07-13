@@ -7,6 +7,7 @@ import com.caue.bookstore.entities.WikipediaSummary;
 import com.caue.bookstore.exceptions.ResourceNotFoundException;
 import com.caue.bookstore.projections.BookProjection;
 import com.caue.bookstore.repositories.AuthorRepository;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -59,12 +60,13 @@ public class AuthorService {
 
     @Transactional(readOnly = true)
     public WikipediaSummary getAuthorSummary(String authorName){
+        Dotenv dotenv = Dotenv.load();
 
         authorName = authorName.replace(" ","_");
 
         return restClient.get()
                 .uri("/{authorName}",authorName)
-                .header(HttpHeaders.USER_AGENT, "BookStoreApp/1.0 (caueribeiro.dev@gmail.com)")
+                .header(HttpHeaders.USER_AGENT, "BookStoreApp/1.0 " +"("+dotenv.get("PERSONAL_EMAIL")+")")
                 .retrieve()
                 .body(WikipediaSummary.class);
 
