@@ -149,7 +149,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public Map<String,Object> requestPasswordReset(ForgotPasswordDTO dto){
         long randomNumber = otpGenerator();
-        long expirationMinutes = 60 * 1000;
+        long expirationMinutes = 60 * 1000 * 30;
         Instant newExpirationTime = Instant.now().plus(expirationMinutes, ChronoUnit.MILLIS);
 
         User user = repository.findByEmail(dto.email()).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MSG));
