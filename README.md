@@ -11,6 +11,8 @@ A backend API for an online bookstore that manages users, authentication, catalo
 
 This system solves the core operational problems of a bookstore platform by centralizing catalog management, purchase flow, and authentication/security rules in a single API.
 
+> **Note:** This repository contains the Backend application. The companion React Frontend app can be 
+> found [here](https://github.com/Caue-Ribeiro/book_store_frontend).
 <!-- TODO: Replace/add repository-specific badges (build status, coverage, license) once CI and public repository URLs are finalized. -->
 
 ---
