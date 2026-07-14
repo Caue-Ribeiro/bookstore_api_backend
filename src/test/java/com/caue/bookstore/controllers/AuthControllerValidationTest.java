@@ -81,12 +81,10 @@ class AuthControllerValidationTest {
     }
 
     @Test
-    void shouldRejectMissingEmailPathVariableOnForgotPassword() throws Exception {
-        String email = "";
-
-        mockMvc.perform(post("/forgot-password", email)
+    void shouldRejectMissingBodyOnForgotPassword() throws Exception {
+        mockMvc.perform(post("/forgot-password")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
 
         verifyNoInteractions(userService);
     }
