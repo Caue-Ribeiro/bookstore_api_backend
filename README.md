@@ -377,6 +377,6 @@ Base URL (local): `http://localhost:8080`
 
 #### GitHub: @Caue-Ribeiro
 
-#### Site: https://caueribeirodev.vercel.app/
+#### Site: https://caueribeirodev.com/
 
 #### LinkedIn: https://www.linkedin.com/in/cau%C3%AA-ribeiro-647b07240/
